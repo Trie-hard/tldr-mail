@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Camera,
   Upload,
@@ -34,6 +35,8 @@ import {
   Eraser,
   HelpCircle,
   Sparkles,
+  ArrowRight,
+  MapPin,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SAMPLE_LETTERS } from '@/lib/sample-letters';
@@ -61,6 +64,7 @@ export default function Home() {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [viewingDocId, setViewingDocId] = useState<string | null>(null);
   const [speechRate, setSpeechRate] = useState<number>(1.0);
+  const [sampleFilter, setSampleFilter] = useState<string>('all');
 
   // Redaction state
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
@@ -94,6 +98,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     speechRef.current = new SpeechManager();
@@ -110,6 +115,10 @@ export default function Home() {
 
   const toggleStep = (stepOrder: number) => {
     setCompletedSteps((prev) => ({ ...prev, [stepOrder]: !prev[stepOrder] }));
+  };
+
+  const scrollToUpload = () => {
+    uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const analyzeImage = useCallback(
@@ -201,7 +210,7 @@ export default function Home() {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const maxWidth = 640;
         const scale = img.width > maxWidth ? maxWidth / img.width : 1;
@@ -246,7 +255,7 @@ export default function Home() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const img = new Image();
+    const img = new window.Image();
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       setHasRedactions(false);
@@ -372,6 +381,15 @@ export default function Home() {
     setIsSpeaking(false);
   };
 
+  const filteredSamples = SAMPLE_LETTERS.filter((s) => {
+    if (sampleFilter === 'all') return true;
+    if (sampleFilter === 'housing') return s.id === 'eviction';
+    if (sampleFilter === 'utility') return s.id === 'utility';
+    if (sampleFilter === 'benefits') return s.id === 'benefits';
+    if (sampleFilter === 'medical') return s.id === 'medical';
+    return true;
+  });
+
   const urgencyConfig = {
     critical: {
       color: 'bg-red-50 border-red-200 text-red-700',
@@ -381,7 +399,7 @@ export default function Home() {
     'action-required': {
       color: 'bg-amber-50 border-amber-200 text-amber-800',
       icon: Clock,
-      label: 'Action Required — Deadline Approaching',
+      label: 'Action Required — Strict Deadline Approaching',
     },
     informational: {
       color: 'bg-blue-50 border-blue-200 text-blue-800',
@@ -391,39 +409,47 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm no-print">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={resetApp}>
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20">
-              <FileText className="w-5 h-5 text-white" />
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs no-print">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={resetApp}>
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-500/20 border border-slate-200/80 flex-shrink-0">
+              <Image
+                src="/logo.png"
+                alt="TL;DR Mail Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none">TL;DR Mail</h1>
-                <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">v2.0</span>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">TL;DR Mail</h1>
+                <span className="text-[10px] font-extrabold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">v2.0</span>
               </div>
-              <p className="text-xs text-slate-500 hidden sm:block">Decode confusing official mail at a 6th-grade reading level</p>
+              <p className="text-[11px] text-slate-500 hidden sm:block">Decode confusing official mail at a 6th-grade reading level</p>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowStatsModal(true)}
-              className="text-xs font-semibold px-2.5 py-1.5 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center gap-1 transition-colors"
+              className="text-xs font-bold px-3 py-1.5 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl flex items-center gap-1.5 transition-colors border border-blue-200/60"
               title="Community Impact Stats"
             >
               <Heart className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Why This Matters</span>
+              <span className="hidden sm:inline">Why It Matters</span>
             </button>
 
             {/* Language Selector */}
             <div className="relative flex items-center">
-              <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-2 pointer-events-none" />
+              <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
-                className="text-xs font-medium border border-slate-200 rounded-lg pl-7 pr-3 py-1.5 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-sm"
+                className="text-xs font-bold border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
                 aria-label="Select language"
               >
                 {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
@@ -437,7 +463,7 @@ export default function Home() {
             {status === 'done' && (
               <button
                 onClick={resetApp}
-                className="text-xs font-medium px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors shadow-sm"
+                className="text-xs font-bold px-3 py-1.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-xs"
               >
                 Scan Another
               </button>
@@ -449,7 +475,7 @@ export default function Home() {
       {/* Community Impact Modal */}
       <AnimatePresence>
         {showStatsModal && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -463,41 +489,44 @@ export default function Home() {
                 <X className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4" />
+                <div className="w-9 h-9 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">Why TL;DR Mail Exists</h3>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">Why TL;DR Mail Exists</h3>
+                  <p className="text-[11px] text-slate-500">The paperwork literacy crisis in Central Texas</p>
+                </div>
               </div>
-              <p className="text-xs text-slate-500 mb-4">
-                Official notices are written at a college reading level, full of legal jargon that confuses everyday families. Missed deadlines cause catastrophic harm.
+              <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                Official notices are written at a 14th-grade college reading level, full of legal jargon that confuses everyday families. Missed deadlines cause immediate eviction, power shutoffs, and lost healthcare.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                  <span className="text-xl font-black text-red-700">32,000+</span>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3.5">
+                  <span className="text-2xl font-black text-red-700">32,000+</span>
                   <p className="text-xs font-bold text-red-900 mt-0.5">Eviction Filings / Year</p>
-                  <p className="text-[11px] text-red-700">In Travis & Williamson County, TX alone.</p>
+                  <p className="text-[11px] text-red-700">Travis & Williamson County, TX courts.</p>
                 </div>
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                  <span className="text-xl font-black text-amber-700">1 in 5</span>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+                  <span className="text-2xl font-black text-amber-700">1 in 5</span>
                   <p className="text-xs font-bold text-amber-900 mt-0.5">Limited Literacy</p>
-                  <p className="text-[11px] text-amber-800">Adults struggle with bureaucratic and legal English.</p>
+                  <p className="text-[11px] text-amber-800">Adults struggle with official legal English.</p>
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                  <span className="text-xl font-black text-blue-700">$180 Million+</span>
-                  <p className="text-xs font-bold text-blue-900 mt-0.5">Lost Benefits</p>
-                  <p className="text-[11px] text-blue-800">Texas SNAP/Medicaid dropped due to procedural form errors.</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+                  <span className="text-2xl font-black text-blue-700">$180M+</span>
+                  <p className="text-xs font-bold text-blue-900 mt-0.5">Lost Texas Benefits</p>
+                  <p className="text-[11px] text-blue-800">SNAP & Medicaid dropped over paperwork clerical errors.</p>
                 </div>
-                <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-                  <span className="text-xl font-black text-green-700">3 Days</span>
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3.5">
+                  <span className="text-2xl font-black text-green-700">72 Hours</span>
                   <p className="text-xs font-bold text-green-900 mt-0.5">Standard Texas Notice</p>
-                  <p className="text-[11px] text-green-800">Tenants often have only 72 hours before a lawsuit is filed.</p>
+                  <p className="text-[11px] text-green-800">Tenants often get only 3 days before a lawsuit is filed.</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowStatsModal(false)}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-xs transition-colors"
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors shadow-md shadow-blue-500/20"
               >
-                Got It — Back to App
+                Back to Decoder
               </button>
             </motion.div>
           </div>
@@ -509,7 +538,7 @@ export default function Home() {
         <DocumentVisualizer letterId={viewingDocId} onClose={() => setViewingDocId(null)} />
       )}
 
-      <main className="max-w-4xl mx-auto px-4 py-6 flex-1 w-full">
+      <main className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
         <AnimatePresence mode="wait">
           {/* ===== IDLE STATE ===== */}
           {status === 'idle' && (
@@ -518,24 +547,88 @@ export default function Home() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              {/* Hero Banner */}
-              <div className="text-center pt-4 pb-6">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold mb-4">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                  WarriorHacks 2.0 Civic Tech Innovation
+              {/* Hero Banner with Generated Illustration */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2 pb-4">
+                <div className="lg:col-span-7 space-y-4 text-left">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 rounded-full text-xs font-bold text-blue-700 shadow-2xs">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                    <span>WarriorHacks 2.0 Civic Innovation</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    <span className="text-slate-500 font-medium">Austin, Texas</span>
+                  </div>
+
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.12]">
+                    Don&apos;t Let Confusing Mail{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                      Ruin Your Life.
+                    </span>
+                  </h2>
+
+                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                    Snap a photo of an eviction notice, utility shutoff, hospital bill, or Medicaid form. 
+                    We decode bureaucratic jargon into a <strong>6th-grade action plan</strong> with calendar deadline alarms and free Central Texas legal aid.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={scrollToUpload}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all active:scale-95"
+                    >
+                      <Camera className="w-4 h-4" />
+                      <span>Scan Your Letter</span>
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </button>
+                    <button
+                      onClick={() => handleSampleSelect(SAMPLE_LETTERS[0])}
+                      className="flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs font-bold shadow-2xs transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 text-blue-600" />
+                      <span>Try 1-Click Eviction Demo</span>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                      <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Zero-Retention Privacy</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                      <Globe className="w-3.5 h-3.5 text-blue-600" />
+                      <span>5 Languages + Audio</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                      <Heart className="w-3.5 h-3.5 text-red-600" />
+                      <span>Austin Legal Aid (TRLA)</span>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-                  Don&apos;t Let Confusing Mail Ruin Your Life.
-                </h2>
-                <p className="text-slate-600 text-base sm:text-lg max-w-xl mx-auto">
-                  Snap a photo of an eviction notice, utility shutoff, hospital bill, or benefits form. Get an instant 6th-grade summary, deadline reminders, and free local legal aid.
-                </p>
+
+                {/* Right Hero Illustration */}
+                <div className="lg:col-span-5 relative">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/90 bg-white group">
+                    <Image
+                      src="/hero-illustration.jpg"
+                      alt="Person scanning letter with smartphone and AI breakdown cards"
+                      width={720}
+                      height={405}
+                      className="w-full h-auto object-cover transform group-hover:scale-102 transition-transform duration-500"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent flex items-end p-4">
+                      <p className="text-white text-xs font-semibold">
+                        📸 Multimodal Vision OCR turns complex mail into immediate action
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Upload Zone & Actions */}
-              <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 sm:p-10 text-center hover:border-blue-500 hover:bg-blue-50/40 transition-all cursor-pointer group shadow-sm"
+              <div
+                ref={uploadSectionRef}
+                className="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-6 sm:p-10 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer group shadow-sm"
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
@@ -543,26 +636,28 @@ export default function Home() {
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
               >
-                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                  <Upload className="w-7 h-7 text-blue-600" />
+                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-xs">
+                  <Upload className="w-8 h-8 text-blue-600" />
                 </div>
-                <p className="text-slate-900 font-bold text-base mb-1">Upload or Drag & Drop Your Letter Photo</p>
-                <p className="text-slate-500 text-xs mb-4">Supports phone photos, camera scans, PNG, JPG, or PDF</p>
-                
+                <h3 className="text-slate-900 font-black text-lg mb-1">Upload or Snap Your Letter</h3>
+                <p className="text-slate-500 text-xs mb-5 max-w-sm mx-auto">
+                  Drag and drop a photo or scan of your official document (PNG, JPG, PDF)
+                </p>
+
                 <div className="flex flex-wrap justify-center gap-3" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => cameraInputRef.current?.click()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95"
                   >
                     <Camera className="w-4 h-4" />
-                    Snap with Camera
+                    Take Photo with Camera
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium text-xs transition-colors"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition-colors"
                   >
                     <Upload className="w-4 h-4" />
-                    Browse Files
+                    Browse Device Files
                   </button>
                 </div>
                 <input
@@ -582,82 +677,90 @@ export default function Home() {
                 />
               </div>
 
-              {/* Judge / Demo Mailbox */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-blue-600" />
-                    <h3 className="text-sm font-bold text-slate-900">Try a Real Sample Letter (1-Click Demo)</h3>
+              {/* Judge Demo Mailbox */}
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">Interactive Demo Mailbox (Instant Test)</h3>
+                      <p className="text-[11px] text-slate-500">Judges: Test realistic Central Texas letters with 1 click</p>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full">Judges: Test Instant Analysis</span>
+
+                  {/* Filter Pills */}
+                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-[11px] font-bold">
+                    <button
+                      onClick={() => setSampleFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
+                    >
+                      All
+                    </button>
+                    <button
+                      onClick={() => setSampleFilter('housing')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'housing' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
+                    >
+                      🏠 Housing
+                    </button>
+                    <button
+                      onClick={() => setSampleFilter('utility')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'utility' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
+                    >
+                      ⚡ Utility
+                    </button>
+                    <button
+                      onClick={() => setSampleFilter('benefits')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'benefits' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
+                    >
+                      📋 Benefits
+                    </button>
+                    <button
+                      onClick={() => setSampleFilter('medical')}
+                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'medical' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
+                    >
+                      🏥 Medical
+                    </button>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  {SAMPLE_LETTERS.map((sample) => (
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {filteredSamples.map((sample) => (
                     <div
                       key={sample.id}
-                      className="flex flex-col justify-between p-3.5 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-blue-400 rounded-xl transition-all group text-left"
+                      className="flex flex-col justify-between p-4 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-2xl transition-all group text-left shadow-2xs"
                     >
                       <button
                         onClick={() => handleSampleSelect(sample)}
                         className="w-full text-left"
                       >
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-xl">{sample.emoji}</span>
-                          <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 leading-tight">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl p-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">{sample.emoji}</span>
+                          <span className="text-xs font-black text-slate-900 group-hover:text-blue-600 leading-tight">
                             {sample.title}
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-500 line-clamp-2">{sample.description}</span>
+                        <span className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{sample.description}</span>
                       </button>
 
-                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/60">
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200/80">
                         <button
                           onClick={() => setViewingDocId(sample.id)}
                           className="text-[10px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1"
                         >
                           <Eye className="w-3 h-3" />
-                          Doc View
+                          View Paper Facsimile
                         </button>
                         <button
                           onClick={() => handleSampleSelect(sample)}
-                          className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-white border border-blue-200 rounded px-2 py-0.5 shadow-xs"
+                          className="text-[10px] font-extrabold text-blue-700 bg-blue-100/80 hover:bg-blue-200/80 rounded-lg px-2.5 py-1 transition-colors"
                         >
                           Decode →
                         </button>
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Key Features Triad */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">Zero Storage Privacy</h4>
-                    <p className="text-[11px] text-slate-500">Processed in-memory. Personal mail is never permanently saved.</p>
-                  </div>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Globe className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">5 Languages + Audio</h4>
-                    <p className="text-[11px] text-slate-500">English, Spanish, Vietnamese, Chinese & Arabic with voice read-aloud.</p>
-                  </div>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Heart className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">Austin & Texas Resources</h4>
-                    <p className="text-[11px] text-slate-500">Auto-matched free legal aid (TRLA), energy assistance & 2-1-1.</p>
-                  </div>
                 </div>
               </div>
             </motion.div>
@@ -670,20 +773,24 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4"
+              className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
+                    <Shield className="w-5 h-5" />
+                  </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">Privacy Shield: Redact Sensitive Info</h3>
+                    <h3 className="text-base font-black text-slate-900">Privacy Shield: Redact Sensitive Info</h3>
                     <p className="text-xs text-slate-500">Draw with your finger or mouse over SSNs, bank accounts, or names you wish to blackout</p>
                   </div>
                 </div>
-                <span className="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Client-Side Only</span>
+                <span className="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+                  100% Client-Side
+                </span>
               </div>
 
-              <div className="flex justify-center bg-slate-100 rounded-xl p-2 overflow-auto max-h-[60vh]">
+              <div className="flex justify-center bg-slate-100 rounded-2xl p-3 overflow-auto max-h-[60vh]">
                 <canvas
                   ref={canvasRef}
                   onMouseDown={startDraw}
@@ -693,7 +800,7 @@ export default function Home() {
                   onTouchStart={startDraw}
                   onTouchEnd={stopDraw}
                   onTouchMove={draw}
-                  className="border border-slate-300 rounded shadow-sm cursor-crosshair touch-none"
+                  className="border border-slate-300 rounded-xl shadow-sm cursor-crosshair touch-none bg-white"
                 />
               </div>
 
@@ -701,7 +808,7 @@ export default function Home() {
                 <button
                   onClick={clearRedactions}
                   disabled={!hasRedactions}
-                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 disabled:opacity-40 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40 transition-colors"
                 >
                   <Eraser className="w-4 h-4" />
                   Clear Redactions
@@ -709,13 +816,13 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={resetApp}
-                    className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900"
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={proceedFromRedaction}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold shadow-md shadow-blue-500/20"
                   >
                     <Check className="w-4 h-4" />
                     Analyze Letter Now
@@ -739,10 +846,10 @@ export default function Home() {
                 <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute inset-0" />
               </div>
               <div className="text-center space-y-1">
-                <p className="text-lg font-bold text-slate-900">Decoding your letter...</p>
+                <p className="text-lg font-black text-slate-900">Decoding your letter...</p>
                 <p className="text-xs text-slate-500">Extracting deadlines, financial balances, consequences, and legal rights</p>
-                <span className="inline-block text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full mt-2">
-                  Simplifying to 6th-grade reading level ({LANGUAGE_NAMES[language]})
+                <span className="inline-block text-[11px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full mt-2 border border-blue-200/60">
+                  Translating to 6th-grade reading level ({LANGUAGE_NAMES[language]})
                 </span>
               </div>
             </motion.div>
@@ -755,14 +862,14 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center py-16 bg-white border border-slate-200 rounded-2xl p-8"
+              className="text-center py-16 bg-white border border-slate-200 rounded-3xl p-8"
             >
               <AlertTriangle className="w-12 h-12 text-red-600 mx-auto mb-3" />
-              <p className="text-lg font-bold text-slate-900 mb-1">Could Not Complete Analysis</p>
+              <p className="text-lg font-black text-slate-900 mb-1">Could Not Complete Analysis</p>
               <p className="text-xs text-slate-500 mb-4 max-w-md mx-auto">{error}</p>
               <button
                 onClick={resetApp}
-                className="px-5 py-2.5 bg-blue-600 text-white font-medium text-xs rounded-xl hover:bg-blue-700 transition-colors"
+                className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20"
               >
                 Try Again
               </button>
@@ -775,20 +882,20 @@ export default function Home() {
               key="results"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
+              className="space-y-5"
             >
               {/* High Stakes Urgent Warning */}
               {analysis.isHighStakes && (
                 <motion.div
                   initial={{ scale: 0.98 }}
                   animate={{ scale: 1 }}
-                  className="bg-red-50 border-2 border-red-300 rounded-2xl p-4.5 flex items-start gap-3.5 shadow-sm"
+                  className="bg-red-50 border-2 border-red-300 rounded-2xl p-5 flex items-start gap-4 shadow-xs"
                 >
                   <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="font-extrabold text-red-800 text-sm">⚠️ High Stakes Notice Detected</p>
-                      <span className="text-[10px] bg-red-200 text-red-900 font-bold px-2 py-0.5 rounded-full">Immediate Action</span>
+                      <p className="font-black text-red-800 text-sm">⚠️ High Stakes Notice Detected</p>
+                      <span className="text-[10px] bg-red-200 text-red-900 font-black px-2.5 py-0.5 rounded-full">Immediate Action</span>
                     </div>
                     <p className="text-xs text-red-700 mt-1 leading-relaxed">
                       This letter involves active legal timelines that could affect your housing, benefits, or credit. 
@@ -799,10 +906,10 @@ export default function Home() {
               )}
 
               {/* Primary TL;DR Card */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
                 {/* Triage Urgency Header */}
                 <div
-                  className={`px-5 py-3 border-b flex items-center justify-between ${urgencyConfig[analysis.urgency]?.color || 'bg-slate-50 text-slate-700'}`}
+                  className={`px-6 py-3.5 border-b flex items-center justify-between ${urgencyConfig[analysis.urgency]?.color || 'bg-slate-50 text-slate-700'}`}
                 >
                   <div className="flex items-center gap-2">
                     {(() => {
@@ -814,16 +921,16 @@ export default function Home() {
                     </span>
                   </div>
                   {analysis.sender && (
-                    <span className="text-xs font-semibold opacity-90 truncate max-w-[200px] sm:max-w-xs">
+                    <span className="text-xs font-bold opacity-90 truncate max-w-[220px] sm:max-w-xs">
                       From: {analysis.sender}
                     </span>
                   )}
                 </div>
 
-                <div className="p-6">
-                  <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="p-6 sm:p-8">
+                  <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1 min-w-[260px]">
-                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">Plain Language TL;DR</span>
+                      <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider block mb-1">Plain Language TL;DR</span>
                       <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
                         {analysis.tldr}
                       </h2>
@@ -836,15 +943,15 @@ export default function Home() {
                         else if (analysis.category === 'medical-bill') setViewingDocId('medical');
                         else setViewingDocId('eviction');
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex-shrink-0"
+                      className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex-shrink-0 shadow-2xs"
                     >
                       <Eye className="w-3.5 h-3.5 text-blue-600" />
-                      View Original Letter Facsimile
+                      View Scanned Facsimile
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                    <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-5">
+                    <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
                       <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                         What It Wants From You
@@ -853,7 +960,7 @@ export default function Home() {
                     </div>
 
                     {analysis.deadline && (
-                      <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4">
+                      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5">
                         <p className="text-xs font-bold text-amber-800 mb-1 flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-amber-600" />
                           Strict Deadline
@@ -863,7 +970,7 @@ export default function Home() {
                     )}
 
                     {analysis.financialAmount && (
-                      <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                      <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
                         <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5">
                           <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                           Amount Owed / Disputed
@@ -872,12 +979,12 @@ export default function Home() {
                       </div>
                     )}
 
-                    <div className="bg-red-50/60 border border-red-200 rounded-xl p-4">
+                    <div className="bg-red-50/60 border border-red-200 rounded-2xl p-4.5">
                       <p className="text-xs font-bold text-red-800 mb-1 flex items-center gap-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
                         If You Do Nothing
                       </p>
-                      <p className="text-xs font-medium text-red-900 leading-relaxed">{analysis.consequenceOfInaction}</p>
+                      <p className="text-xs font-semibold text-red-900 leading-relaxed">{analysis.consequenceOfInaction}</p>
                     </div>
                   </div>
                 </div>
@@ -886,10 +993,10 @@ export default function Home() {
               {/* Action Bar (Audio Read-Aloud + Speed + Calendar Sync + Print) */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="inline-flex rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+                  <div className="inline-flex rounded-xl shadow-2xs border border-slate-200 overflow-hidden">
                     <button
                       onClick={handleSpeak}
-                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold transition-all ${
+                      className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all ${
                         isSpeaking
                           ? 'bg-blue-600 text-white'
                           : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
@@ -901,7 +1008,7 @@ export default function Home() {
                     <select
                       value={speechRate}
                       onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                      className="bg-slate-50 text-[11px] font-bold text-slate-600 px-2 border-l border-slate-200 focus:outline-none"
+                      className="bg-slate-50 text-[11px] font-bold text-slate-600 px-2.5 border-l border-slate-200 focus:outline-none"
                       aria-label="Speech speed"
                     >
                       <option value={0.8}>0.8x</option>
@@ -920,7 +1027,7 @@ export default function Home() {
                         })}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors"
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors border border-blue-200/60"
                       >
                         <Calendar className="w-4 h-4 text-blue-600" />
                         Google Calendar
@@ -953,31 +1060,31 @@ export default function Home() {
               </div>
 
               {/* Action Checklist */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
                 <button
                   onClick={() => toggleSection('steps')}
-                  className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center font-bold text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-black text-xs">
                       {Object.values(completedSteps).filter(Boolean).length}/{analysis.steps.length}
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm text-slate-900">Your Action Steps</h3>
+                      <h3 className="font-black text-sm text-slate-900">Your Action Steps</h3>
                       <p className="text-[11px] text-slate-500">Tap checkboxes as you complete each task</p>
                     </div>
                   </div>
                   {expandedSections.steps ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                 </button>
                 {expandedSections.steps && (
-                  <div className="px-5 pb-5 space-y-2.5 border-t border-slate-100 pt-3">
+                  <div className="px-6 pb-6 space-y-2.5 border-t border-slate-100 pt-3">
                     {analysis.steps.map((step) => {
                       const isDone = Boolean(completedSteps[step.order]);
                       return (
                         <div
                           key={step.order}
                           onClick={() => toggleStep(step.order)}
-                          className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
+                          className={`flex items-start gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer ${
                             isDone
                               ? 'bg-emerald-50/40 border-emerald-200 opacity-70'
                               : 'bg-slate-50/70 border-slate-200 hover:border-blue-300'
@@ -989,10 +1096,10 @@ export default function Home() {
                             {isDone && <Check className="w-3.5 h-3.5" />}
                           </div>
                           <div className="flex-1">
-                            <p className={`text-xs font-semibold text-slate-900 leading-snug ${isDone ? 'line-through text-slate-500' : ''}`}>
+                            <p className={`text-xs font-bold text-slate-900 leading-snug ${isDone ? 'line-through text-slate-500' : ''}`}>
                               {step.action}
                             </p>
-                            <span className="inline-block text-[10px] font-bold text-slate-500 bg-white border border-slate-200 rounded px-1.5 py-0.5 mt-1">
+                            <span className="inline-block text-[10px] font-bold text-slate-500 bg-white border border-slate-200 rounded px-2 py-0.5 mt-1.5 shadow-2xs">
                               ⏰ {step.timeframe}
                             </span>
                           </div>
@@ -1003,41 +1110,101 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Key Facts & Document Data */}
-              {analysis.keyFacts && analysis.keyFacts.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              {/* Free Local Resources with Generated Graphic */}
+              {resources.length > 0 && (
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
                   <button
-                    onClick={() => toggleSection('facts')}
-                    className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                    onClick={() => toggleSection('resources')}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
                   >
-                    <div className="flex items-center gap-2">
-                      <Info className="w-4 h-4 text-blue-600" />
-                      <h3 className="font-bold text-sm text-slate-900">Extracted Facts & Reference Numbers</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-red-100 text-red-600 rounded-xl flex items-center justify-center font-bold">
+                        <Heart className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-slate-900">
+                          Matched Free Local Help ({resources.length})
+                        </h3>
+                        <p className="text-[11px] text-slate-500">Austin, Travis County & Texas Statewide Legal & Utility Aid</p>
+                      </div>
                     </div>
-                    {expandedSections.facts ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    {expandedSections.resources ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                   </button>
-                  {expandedSections.facts && (
-                    <div className="px-5 pb-5 border-t border-slate-100 pt-3">
-                      <ul className="space-y-2">
-                        {analysis.keyFacts.map((fact, i) => (
-                          <li key={i} className="text-xs text-slate-700 flex items-start gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 flex-shrink-0" />
-                            {fact}
-                          </li>
+                  {expandedSections.resources && (
+                    <div className="px-6 pb-6 space-y-4 border-t border-slate-100 pt-4">
+                      {/* Community Hero Card */}
+                      <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                        <Image
+                          src="/community-austin.jpg"
+                          alt="Austin Texas Community Support Center"
+                          width={800}
+                          height={600}
+                          className="w-full h-44 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent flex flex-col justify-end p-4 text-white">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-blue-300">Central Texas Civic Support Network</span>
+                          <h4 className="text-sm font-bold text-white">Verified Free Legal Aid & Utility Grants</h4>
+                          <p className="text-[11px] text-slate-200 mt-0.5">Direct connections to local legal aid attorneys and emergency municipal utility relief.</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {resources.map((resource, i) => (
+                          <div
+                            key={i}
+                            className="border border-slate-200 rounded-2xl p-4.5 hover:border-blue-300 transition-colors bg-slate-50/50"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{resource.name}</h4>
+                                  {resource.isFree && (
+                                    <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+                                      FREE
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{resource.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 mt-3.5">
+                              <a
+                                href={`tel:${resource.phone}`}
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                                {resource.phone}
+                              </a>
+                              <a
+                                href={resource.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                Visit Website
+                              </a>
+                              <span className="text-[10px] text-slate-400 ml-auto font-medium">
+                                📍 {resource.region} · 🕐 {resource.hours}
+                              </span>
+                            </div>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Auto-Generated Appeal & Dispute Letter Generator */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
+                      <FileText className="w-5 h-5" />
+                    </div>
                     <div>
-                      <h3 className="font-bold text-sm text-slate-900">Auto-Drafted Response & Dispute Letter</h3>
+                      <h3 className="font-black text-sm text-slate-900">Auto-Drafted Response & Dispute Letter</h3>
                       <p className="text-[11px] text-slate-500">Formally cite rights, request a payment plan, or appeal a denial</p>
                     </div>
                   </div>
@@ -1047,27 +1214,27 @@ export default function Home() {
                   <button
                     onClick={handleGenerateAppeal}
                     disabled={appealLoading}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/20 disabled:opacity-50"
                   >
                     {appealLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     {appealLoading ? 'Drafting Official Response Letter...' : 'Generate Official Response / Dispute Letter'}
                   </button>
                 ) : (
                   <div className="space-y-3">
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-mono text-slate-800 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-xs font-mono text-slate-800 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed shadow-inner">
                       {appealLetter}
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={handleCopyAppeal}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-2xs"
                       >
                         {appealCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         {appealCopied ? 'Copied to Clipboard!' : 'Copy Letter'}
                       </button>
                       <button
                         onClick={() => window.print()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
+                        className="flex items-center gap-1.5 px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors"
                       >
                         <Printer className="w-3.5 h-3.5" />
                         Print Letter
@@ -1076,84 +1243,18 @@ export default function Home() {
                   </div>
                 )}
                 <p className="text-[10px] text-slate-400">
-                  ⚖️ Provided as a starting draft template. Review all details before submitting.
+                  ⚖️ Provided as a starting draft template. Have a legal aid counselor review before sending.
                 </p>
               </div>
-
-              {/* Free Local Resources (Austin & Texas Aid) */}
-              {resources.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('resources')}
-                    className="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Heart className="w-4 h-4 text-red-600" />
-                      <div>
-                        <h3 className="font-bold text-sm text-slate-900">
-                          Matched Free Local Help ({resources.length})
-                        </h3>
-                        <p className="text-[11px] text-slate-500">Austin, Travis County & Texas Statewide Legal & Financial Assistance</p>
-                      </div>
-                    </div>
-                    {expandedSections.resources ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
-                  {expandedSections.resources && (
-                    <div className="px-5 pb-5 space-y-3 border-t border-slate-100 pt-3">
-                      {resources.map((resource, i) => (
-                        <div
-                          key={i}
-                          className="border border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-colors bg-slate-50/50"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{resource.name}</h4>
-                                {resource.isFree && (
-                                  <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                                    FREE
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-xs text-slate-600 mt-1 leading-relaxed">{resource.description}</p>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 mt-3">
-                            <a
-                              href={`tel:${resource.phone}`}
-                              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors"
-                            >
-                              <Phone className="w-3.5 h-3.5" />
-                              {resource.phone}
-                            </a>
-                            <a
-                              href={resource.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              Visit Website
-                            </a>
-                            <span className="text-[10px] text-slate-400 ml-auto">
-                              📍 {resource.region} · 🕐 {resource.hours}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* Floating Chat Trigger Button */}
               <button
                 onClick={() => setChatOpen(!chatOpen)}
-                className="fixed bottom-6 right-6 h-13 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-xl flex items-center gap-2 transition-all z-50 no-print"
+                className="fixed bottom-6 right-6 h-13 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center gap-2 transition-all z-50 no-print active:scale-95"
                 aria-label="Ask about this letter"
               >
                 {chatOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-                <span className="text-xs font-bold">{chatOpen ? 'Close Chat' : 'Ask Question About Letter'}</span>
+                <span className="text-xs font-bold">{chatOpen ? 'Close Assistant' : 'Ask Question About Letter'}</span>
               </button>
 
               {/* Chat Panel with Quick Prompt Chips */}
@@ -1163,9 +1264,9 @@ export default function Home() {
                     initial={{ opacity: 0, y: 15, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.96 }}
-                    className="fixed bottom-22 right-6 w-[calc(100%-3rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col max-h-[65vh] no-print overflow-hidden"
+                    className="fixed bottom-22 right-6 w-[calc(100%-3rem)] sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl z-50 flex flex-col max-h-[65vh] no-print overflow-hidden"
                   >
-                    <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between">
+                    <div className="px-4 py-3.5 bg-slate-900 text-white flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-blue-400" />
                         <div>
@@ -1190,7 +1291,7 @@ export default function Home() {
                           key={idx}
                           onClick={() => sendChatMessage(prompt)}
                           disabled={chatLoading}
-                          className="text-[10px] bg-white hover:bg-blue-50 hover:text-blue-700 text-slate-600 px-2 py-1 rounded-md border border-slate-200 font-medium transition-colors text-left"
+                          className="text-[10px] bg-white hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-2 py-1 rounded-md border border-slate-200 font-semibold transition-colors text-left"
                         >
                           💬 {prompt}
                         </button>
@@ -1201,7 +1302,7 @@ export default function Home() {
                       {chatMessages.length === 0 && (
                         <div className="text-center py-6 text-slate-400 text-xs">
                           <HelpCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                          <p className="font-medium">What would you like to know?</p>
+                          <p className="font-bold text-slate-600">What would you like to know?</p>
                           <p className="text-[11px] mt-1 text-slate-400">
                             Tap one of the quick questions above or type your own below.
                           </p>
@@ -1213,10 +1314,10 @@ export default function Home() {
                           className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[85%] px-3.5 py-2 rounded-xl text-xs leading-relaxed ${
+                            className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
                               msg.role === 'user'
                                 ? 'bg-blue-600 text-white rounded-br-none'
-                                : 'bg-slate-100 text-slate-800 rounded-bl-none'
+                                : 'bg-slate-100 text-slate-800 rounded-bl-none font-medium'
                             }`}
                           >
                             {msg.content}
@@ -1225,7 +1326,7 @@ export default function Home() {
                       ))}
                       {chatLoading && (
                         <div className="flex justify-start">
-                          <div className="bg-slate-100 px-3 py-2 rounded-xl">
+                          <div className="bg-slate-100 px-3 py-2 rounded-2xl">
                             <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
                           </div>
                         </div>
@@ -1240,12 +1341,12 @@ export default function Home() {
                         onChange={(e) => setChatInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleChat()}
                         placeholder="Ask anything about this letter..."
-                        className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        className="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
                       />
                       <button
                         onClick={handleChat}
                         disabled={chatLoading || !chatInput.trim()}
-                        className="px-3.5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        className="px-3.5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-2xs"
                       >
                         <Send className="w-3.5 h-3.5" />
                       </button>
@@ -1259,15 +1360,22 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-auto no-print">
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 text-slate-600 text-xs font-semibold">
+      <footer className="border-t border-slate-200 bg-white py-8 mt-auto no-print">
+        <div className="max-w-5xl mx-auto px-4 text-center space-y-2.5">
+          <div className="flex items-center justify-center gap-2 text-slate-700 text-xs font-bold">
             <Shield className="w-4 h-4 text-emerald-600" />
             <span>Strict Privacy Guaranteed: Images Processed In-Memory, Never Permanently Stored</span>
           </div>
-          <p className="text-[11px] text-slate-400 max-w-lg mx-auto">
+          <p className="text-[11px] text-slate-500 max-w-lg mx-auto leading-relaxed">
             TL;DR Mail is an AI literacy assistance tool created for WarriorHacks 2.0 (Westwood CS Club, Austin, Texas). It provides informational summaries and does not constitute formal legal representation.
           </p>
+          <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 pt-1">
+            <span>Built with Next.js 16</span>
+            <span>·</span>
+            <span>Google Gemini 2.5 Flash</span>
+            <span>·</span>
+            <span>Austin, Texas 🤠</span>
+          </div>
         </div>
       </footer>
     </div>
