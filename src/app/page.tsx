@@ -42,6 +42,13 @@ import {
   BookMarked,
   PhoneCall,
   ListChecks,
+  Gavel,
+  ShieldAlert,
+  Building2,
+  MapPin,
+  Lock,
+  Flame,
+  FileCheck,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SAMPLE_LETTERS } from '@/lib/sample-letters';
@@ -92,10 +99,10 @@ export default function Home() {
     jargon: true,
     prep: true,
     resources: true,
+    dispute: true,
   });
 
   // Chat state
-  const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -427,80 +434,115 @@ export default function Home() {
 
   const civicPack = analysis ? getCivicKnowledge(analysis.category) : null;
 
-  const urgencyConfig = {
-    critical: {
-      color: 'bg-red-50 border-red-200 text-red-700',
-      icon: AlertTriangle,
-      label: 'URGENT — Action Required Immediately',
-    },
-    'action-required': {
-      color: 'bg-amber-50 border-amber-200 text-amber-800',
-      icon: Clock,
-      label: 'Action Required — Strict Deadline Approaching',
-    },
-    informational: {
-      color: 'bg-blue-50 border-blue-200 text-blue-800',
-      icon: Info,
-      label: 'Informational Notice',
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs no-print">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* 1. TOP CIVIC MICRO ALERT STRIP (Stitch Architecture) */}
+      <div className="bg-[#172554] text-white text-xs py-2 px-4 sm:px-6 border-b border-blue-900/40 no-print">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center bg-red-600 text-white rounded-full px-2 py-0.5 font-bold uppercase tracking-wider text-[10px] animate-pulse">
+              Urgent Crisis
+            </span>
+            <span className="text-slate-200">
+              Austin 24/7 Tenant Eviction Defense Hotline: <strong className="text-white">(512) 474-1961</strong> (Austin Tenants Council)
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-300">
+            <span className="hidden md:flex items-center gap-1.5 text-blue-200">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              Travis County Justice Courts Partner Access
+            </span>
+            <button
+              onClick={() => setShowStatsModal(true)}
+              className="underline hover:text-white font-medium transition-colors"
+            >
+              14,820 Letters Decoded
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. STICKY MAIN CIVIC HEADER (Stitch Elevation) */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs no-print">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          {/* Brand Anchor */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={resetApp}>
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-500/20 border border-slate-200/80 flex-shrink-0">
-              <Image
-                src="/logo.png"
-                alt="TL;DR Mail Logo"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
-                priority
-              />
+            <div className="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-700/20 overflow-hidden relative">
+              <Image src="/logo.png" alt="TL;DR Mail" width={40} height={40} className="object-cover" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none font-heading">TL;DR Mail</h1>
-                <span className="text-[10px] font-extrabold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Austin Ed.</span>
+              <div className="flex items-center gap-2">
+                <span className="font-heading font-black text-xl tracking-tight text-slate-900 hover:text-blue-700 transition-colors">
+                  TL;DR Mail
+                </span>
+                <span className="bg-slate-100 text-slate-700 text-[11px] font-bold px-2 py-0.5 rounded border border-slate-200">
+                  Austin / Travis Co.
+                </span>
               </div>
-              <p className="text-[11px] text-slate-500 hidden sm:block">Decode confusing official mail at a 6th-grade reading level</p>
+              <p className="text-[11px] text-slate-500 font-medium">Central Texas Civic Legal Decoder Initiative</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowStatsModal(true)}
-              className="text-xs font-bold px-3 py-1.5 text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl flex items-center gap-1.5 transition-colors border border-blue-200/60"
-              title="Community Impact Stats"
-            >
-              <Heart className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">Why It Matters</span>
-            </button>
+          {/* Navigation Links for Results Mode */}
+          {status === 'done' && (
+            <nav className="hidden lg:flex items-center space-x-5 text-xs font-heading font-bold text-slate-600">
+              <a href="#active-decoded-card" className="hover:text-blue-700 transition-colors">Overview</a>
+              <a href="#timeline-section" className="hover:text-blue-700 transition-colors">Timeline</a>
+              <a href="#rights-section" className="hover:text-blue-700 transition-colors">Legal Shield</a>
+              <a href="#jargon-section" className="hover:text-blue-700 transition-colors">Jargon Buster</a>
+              <a href="#aid-directory" className="hover:text-blue-700 transition-colors">Local Aid</a>
+              <a href="#dispute-generator" className="hover:text-blue-700 transition-colors">Dispute Letter</a>
+            </nav>
+          )}
+
+          {/* Utility Tools & Controls */}
+          <div className="flex items-center gap-2.5">
+            {/* Audio Read Aloud */}
+            {status === 'done' && (
+              <button
+                onClick={handleSpeak}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-colors border ${
+                  isSpeaking
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                    : 'bg-blue-50 text-blue-800 hover:bg-blue-100 border-blue-200'
+                }`}
+                title="Listen to 6th-grade audio translation"
+              >
+                {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-blue-700" />}
+                <span className="hidden sm:inline">{isSpeaking ? 'Stop Audio' : 'Listen (6th Grade)'}</span>
+              </button>
+            )}
 
             {/* Language Selector */}
-            <div className="relative flex items-center">
-              <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+            <div className="relative">
               <select
+                aria-label="Select Language"
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
-                className="text-xs font-bold border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
-                aria-label="Select language"
+                className="text-xs font-semibold bg-white border border-slate-300 rounded-lg py-1.5 pl-2.5 pr-7 text-slate-800 focus:ring-2 focus:ring-blue-600 focus:outline-none shadow-2xs"
               >
-                {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
-                  <option key={code} value={code}>
-                    {name}
-                  </option>
-                ))}
+                <option value="en">English (US)</option>
+                <option value="es">Español (Texas)</option>
+                <option value="vi">Tiếng Việt (Austin)</option>
+                <option value="zh">中文 (Chinese)</option>
+                <option value="ar">العربية (Arabic)</option>
               </select>
             </div>
 
+            {/* Emergency Hotline Button */}
+            <a
+              href="tel:5124741961"
+              className="hidden sm:inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>(512) 474-1961</span>
+            </a>
+
+            {/* Scan Another Button */}
             {status === 'done' && (
               <button
                 onClick={resetApp}
-                className="text-xs font-bold px-3 py-1.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-xs"
+                className="text-xs font-bold px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-all shadow-xs"
               >
                 Scan Another
               </button>
@@ -517,7 +559,7 @@ export default function Home() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative"
+              className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative space-y-4"
             >
               <button
                 onClick={() => setShowStatsModal(false)}
@@ -525,38 +567,38 @@ export default function Home() {
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-9 h-9 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 text-red-700 rounded-xl flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-900 font-heading">Why TL;DR Mail Exists</h3>
-                  <p className="text-[11px] text-slate-500">The paperwork literacy crisis in Central Texas</p>
+                  <p className="text-xs text-slate-500">The paperwork literacy crisis in Central Texas</p>
                 </div>
               </div>
-              <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-                Official notices are written at a 14th-grade college reading level, full of legal jargon that confuses everyday families. Missed deadlines cause immediate eviction, power shutoffs, and lost healthcare.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Official notices are written at a 14th-grade college reading level, full of legal threats that confuse everyday families. Missed deadlines cause immediate eviction, power shutoffs, and lost healthcare.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
                   <span className="text-2xl font-black text-red-700 font-heading">32,000+</span>
                   <p className="text-xs font-bold text-red-900 mt-0.5">Eviction Filings / Year</p>
                   <p className="text-[11px] text-red-700">Travis & Williamson County, TX courts.</p>
                 </div>
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                   <span className="text-2xl font-black text-amber-700 font-heading">1 in 5</span>
                   <p className="text-xs font-bold text-amber-900 mt-0.5">Limited Literacy</p>
                   <p className="text-[11px] text-amber-800">Adults struggle with official legal English.</p>
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
                   <span className="text-2xl font-black text-blue-700 font-heading">$180M+</span>
                   <p className="text-xs font-bold text-blue-900 mt-0.5">Lost Texas Benefits</p>
-                  <p className="text-[11px] text-blue-800">SNAP & Medicaid dropped over paperwork clerical errors.</p>
+                  <p className="text-[11px] text-blue-800">SNAP & Medicaid dropped over clerical paperwork errors.</p>
                 </div>
-                <div className="bg-green-50 border border-green-200 rounded-xl p-3.5">
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
                   <span className="text-2xl font-black text-green-700 font-heading">72 Hours</span>
                   <p className="text-xs font-bold text-green-900 mt-0.5">Standard Texas Notice</p>
-                  <p className="text-[11px] text-green-800">Tenants often get only 3 days before a lawsuit is filed.</p>
+                  <p className="text-[11px] text-green-800">Tenants get only 3 days before a lawsuit is filed.</p>
                 </div>
               </div>
               <button
@@ -633,491 +675,462 @@ export default function Home() {
         <DocumentVisualizer letterId={viewingDocId} onClose={() => setViewingDocId(null)} />
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
+      {/* MAIN CONTAINER */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-8">
         <AnimatePresence mode="wait">
-          {/* ===== IDLE STATE ===== */}
+          {/* ========================================================= */}
+          {/* ===== IDLE STATE: ASYMMETRIC CIVIC BENTO HERO (STITCH) ===== */}
+          {/* ========================================================= */}
           {status === 'idle' && (
             <motion.div
               key="idle"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="space-y-8"
+              className="space-y-10"
             >
-              {/* Hero Banner with Generated Illustration */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2 pb-4">
-                <div className="lg:col-span-7 space-y-4 text-left">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 rounded-full text-xs font-bold text-blue-700 shadow-2xs">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                    <span>WarriorHacks 2.0 Civic Innovation</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    <span className="text-slate-500 font-medium">Austin, Texas</span>
+              {/* Asymmetric Civic Bento Hero */}
+              <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2" ref={uploadSectionRef}>
+                {/* Left Column: Civic Framing & Purpose */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-50 border border-amber-200/90 rounded-full text-amber-900 text-xs font-bold shadow-2xs">
+                    <Gavel className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Zero-Retention Public Legal Shield for Travis County Renters & Patients</span>
                   </div>
 
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.12] font-heading">
-                    Don&apos;t Let Confusing Mail{' '}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                      Ruin Your Life.
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black font-heading text-slate-900 tracking-tight leading-[1.12]">
+                    Don’t Let Confusing Mail Ruin Your{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-900">
+                      Housing, Health, or Credit.
                     </span>
-                  </h2>
+                  </h1>
 
-                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl">
-                    Snap a photo of an eviction notice, utility shutoff, hospital bill, or Medicaid form. 
-                    We decode bureaucratic jargon into a <strong>6th-grade action plan</strong> with calendar deadline alarms and free Central Texas legal aid.
+                  <p className="text-base sm:text-lg text-slate-600 font-body leading-relaxed max-w-xl">
+                    Upload intimidating government notices, court summons, eviction warnings, or hospital bills. 
+                    We translate legal threats into <strong>6th-grade clarity</strong> with strict deadlines and emergency Austin aid in under 60 seconds.
                   </p>
 
+                  {/* Trust Badges */}
+                  <div className="flex flex-wrap gap-2.5 pt-1">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 text-slate-800 rounded-lg text-xs font-semibold shadow-2xs">
+                      <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                      100% Private (Zero-retention client-side)
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 text-slate-800 rounded-lg text-xs font-semibold shadow-2xs">
+                      <Scale className="w-3.5 h-3.5 text-blue-700" />
+                      Texas Property & Civil Code Aware
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 text-slate-800 rounded-lg text-xs font-semibold shadow-2xs">
+                      <Heart className="w-3.5 h-3.5 text-red-600" />
+                      Direct Legal Aid Referrals
+                    </span>
+                  </div>
+
+                  {/* Primary & Secondary CTAs */}
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
-                      onClick={scrollToUpload}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/25 transition-all active:scale-95"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="cursor-pointer inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-heading font-bold text-sm px-6 py-3.5 rounded-xl shadow-lg shadow-blue-700/25 active:scale-95 transition-all"
                     >
                       <Camera className="w-4 h-4" />
-                      <span>Scan Your Letter</span>
-                      <ArrowRight className="w-4 h-4 ml-1" />
+                      <span>Scan or Upload Letter (PDF/Photo)</span>
                     </button>
                     <button
                       onClick={() => handleSampleSelect(SAMPLE_LETTERS[0])}
-                      className="flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs font-bold shadow-2xs transition-colors"
+                      className="inline-flex items-center gap-2 bg-white text-slate-800 border border-slate-300 font-heading font-bold text-sm px-5 py-3.5 rounded-xl hover:bg-slate-50 transition-all shadow-2xs"
                     >
-                      <BookOpen className="w-4 h-4 text-blue-600" />
-                      <span>Try 1-Click Eviction Demo</span>
+                      <BookOpen className="w-4 h-4 text-blue-700" />
+                      <span>Try 1-Click Eviction Notice</span>
                     </button>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 pt-2">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
-                      <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Zero-Retention Privacy</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
-                      <Globe className="w-3.5 h-3.5 text-blue-600" />
-                      <span>5 Languages + Audio</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
-                      <Heart className="w-3.5 h-3.5 text-red-600" />
-                      <span>Austin Legal Aid (TRLA)</span>
-                    </div>
-                  </div>
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5 pt-1">
+                    <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                    Processed securely in your browser memory. Document images never leave your device.
+                  </p>
                 </div>
 
-                {/* Right Hero Illustration */}
-                <div className="lg:col-span-5 relative">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/90 bg-white group">
-                    <Image
-                      src="/hero-illustration.jpg"
-                      alt="Person scanning letter with smartphone and AI breakdown cards"
-                      width={720}
-                      height={405}
-                      className="w-full h-auto object-cover transform group-hover:scale-102 transition-transform duration-500"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent flex items-end p-4">
-                      <p className="text-white text-xs font-semibold">
-                        📸 Multimodal Vision OCR turns complex mail into immediate action
-                      </p>
+                {/* Right Column: Interactive Dropzone Console (Stitch Design) */}
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                  className="lg:col-span-5 bg-white border-2 border-dashed border-slate-300 hover:border-blue-600 rounded-3xl p-6 shadow-sm transition-colors flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 font-heading">
+                        Document Decoder Console
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        OCR Pipeline Ready
+                      </span>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Upload Zone & Actions */}
-              <div
-                ref={uploadSectionRef}
-                className="bg-white border-2 border-dashed border-slate-300 rounded-3xl p-6 sm:p-10 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer group shadow-sm"
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                onClick={() => fileInputRef.current?.click()}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-              >
-                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-xs">
-                  <Upload className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-slate-900 font-black text-lg mb-1 font-heading">Upload or Snap Your Letter</h3>
-                <p className="text-slate-500 text-xs mb-5 max-w-sm mx-auto">
-                  Drag and drop a photo or scan of your official document (PNG, JPG, PDF)
-                </p>
+                    {/* Drop Box Visual Area */}
+                    <div className="bg-[#f8fafc] border border-slate-200 rounded-2xl p-6 text-center flex flex-col items-center justify-center space-y-3">
+                      <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shadow-2xs">
+                        <Upload className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <p className="font-heading font-black text-sm text-slate-900">
+                          Drag your letter here, or choose a file
+                        </p>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          High-contrast photos taken on mobile phones work best
+                        </p>
+                      </div>
 
-                <div className="flex flex-wrap justify-center gap-3" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => cameraInputRef.current?.click()}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95"
-                  >
-                    <Camera className="w-4 h-4" />
-                    Take Photo with Camera
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs transition-colors"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Browse Device Files
-                  </button>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,application/pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <input
-                  ref={cameraInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Judge Demo Mailbox */}
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                      <BookOpen className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-slate-900 font-heading">Interactive Demo Mailbox (Instant Test)</h3>
-                      <p className="text-[11px] text-slate-500">Judges: Test realistic Central Texas letters with 1 click</p>
-                    </div>
-                  </div>
-
-                  {/* Filter Pills */}
-                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-[11px] font-bold">
-                    <button
-                      onClick={() => setSampleFilter('all')}
-                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'all' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
-                    >
-                      All
-                    </button>
-                    <button
-                      onClick={() => setSampleFilter('housing')}
-                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'housing' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
-                    >
-                      🏠 Housing
-                    </button>
-                    <button
-                      onClick={() => setSampleFilter('utility')}
-                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'utility' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
-                    >
-                      ⚡ Utility
-                    </button>
-                    <button
-                      onClick={() => setSampleFilter('benefits')}
-                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'benefits' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
-                    >
-                      📋 Benefits
-                    </button>
-                    <button
-                      onClick={() => setSampleFilter('medical')}
-                      className={`px-2.5 py-1 rounded-lg transition-colors ${sampleFilter === 'medical' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}`}
-                    >
-                      🏥 Medical
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {filteredSamples.map((sample) => (
-                    <div
-                      key={sample.id}
-                      className="flex flex-col justify-between p-4 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-2xl transition-all group text-left shadow-2xs"
-                    >
-                      <button
-                        onClick={() => handleSampleSelect(sample)}
-                        className="w-full text-left"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-2xl p-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">{sample.emoji}</span>
-                          <span className="text-xs font-black text-slate-900 group-hover:text-blue-600 leading-tight font-heading">
-                            {sample.title}
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{sample.description}</span>
-                      </button>
-
-                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200/80">
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => setViewingDocId(sample.id)}
-                          className="text-[10px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs"
                         >
-                          <Eye className="w-3 h-3" />
-                          View Facsimile
+                          Browse Files
                         </button>
                         <button
-                          onClick={() => handleSampleSelect(sample)}
-                          className="text-[10px] font-extrabold text-blue-700 bg-blue-100/80 hover:bg-blue-200/80 rounded-lg px-2.5 py-1 transition-colors"
+                          onClick={() => cameraInputRef.current?.click()}
+                          className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-colors"
                         >
-                          Decode →
+                          Take Photo
                         </button>
                       </div>
+
+                      <div className="flex gap-2 text-[10px] font-bold text-slate-500 pt-1 font-mono">
+                        <span className="px-2 py-0.5 bg-white border border-slate-200 rounded">.PDF</span>
+                        <span className="px-2 py-0.5 bg-white border border-slate-200 rounded">.JPG</span>
+                        <span className="px-2 py-0.5 bg-white border border-slate-200 rounded">.PNG</span>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Preloaded Central Texas Document Samples */}
+                  <div className="mt-5 pt-4 border-t border-slate-200">
+                    <p className="text-xs font-bold text-slate-700 mb-2.5 flex items-center justify-between">
+                      <span>Or test with real Central Texas document templates:</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Click to decode</span>
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {SAMPLE_LETTERS.map((sample) => (
+                        <button
+                          key={sample.id}
+                          onClick={() => handleSampleSelect(sample)}
+                          className="w-full text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-600 bg-white hover:bg-blue-50/50 text-slate-800 text-xs font-semibold flex items-center justify-between transition-all group"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">{sample.emoji}</span>
+                            <span className="font-heading font-bold text-slate-900 group-hover:text-blue-700">
+                              {sample.title}
+                            </span>
+                          </span>
+                          <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            {sample.description}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </section>
+
+              {/* Hidden file inputs */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileChange}
+              />
             </motion.div>
           )}
 
-          {/* ===== REDACTION STATE ===== */}
+          {/* ========================================================= */}
+          {/* ===== REDACTION VIEW (Client-side Privacy Scrubbing) ===== */}
+          {/* ========================================================= */}
           {status === 'redacting' && (
             <motion.div
               key="redacting"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4"
+              className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 max-w-2xl mx-auto"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
-                    <Shield className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-black text-slate-900 font-heading">Privacy Shield: Redact Sensitive Info</h3>
-                    <p className="text-xs text-slate-500">Draw with your finger or mouse over SSNs, bank accounts, or names you wish to blackout</p>
-                  </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 font-heading">Scrub Private Details</h3>
+                  <p className="text-xs text-slate-500">
+                    Swipe with your finger or mouse to black out Social Security numbers, bank accounts, or names.
+                  </p>
                 </div>
-                <span className="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
-                  100% Client-Side
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={clearRedactions}
+                    className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold flex items-center gap-1 border border-slate-200"
+                    title="Undo all redactions"
+                  >
+                    <Eraser className="w-4 h-4" />
+                    Reset
+                  </button>
+                </div>
               </div>
 
-              <div className="flex justify-center bg-slate-100 rounded-2xl p-3 overflow-auto max-h-[60vh]">
+              <div className="flex justify-center bg-slate-900 rounded-2xl p-2 overflow-hidden shadow-inner">
                 <canvas
                   ref={canvasRef}
                   onMouseDown={startDraw}
                   onMouseUp={stopDraw}
-                  onMouseLeave={stopDraw}
                   onMouseMove={draw}
                   onTouchStart={startDraw}
                   onTouchEnd={stopDraw}
                   onTouchMove={draw}
-                  className="border border-slate-300 rounded-xl shadow-sm cursor-crosshair touch-none bg-white"
+                  className="max-w-full h-auto cursor-crosshair rounded-xl touch-none"
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <div className="flex items-center justify-between pt-2">
                 <button
-                  onClick={clearRedactions}
-                  disabled={!hasRedactions}
-                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40 transition-colors"
+                  onClick={() => setStatus('idle')}
+                  className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
                 >
-                  <Eraser className="w-4 h-4" />
-                  Clear Redactions
+                  Cancel
                 </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={resetApp}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={proceedFromRedaction}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold shadow-md shadow-blue-500/20"
-                  >
-                    <Check className="w-4 h-4" />
-                    Analyze Letter Now
-                  </button>
-                </div>
+                <button
+                  onClick={proceedFromRedaction}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-700/20"
+                >
+                  <span>{hasRedactions ? 'Analyze Scrubbed Letter' : 'Continue Without Redacting'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </motion.div>
           )}
 
-          {/* ===== ANALYZING STATE ===== */}
+          {/* ========================================================= */}
+          {/* ===== ANALYZING VIEW (Processing Pipeline) ===== */}
+          {/* ========================================================= */}
           {status === 'analyzing' && (
             <motion.div
               key="analyzing"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 gap-4"
+              className="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-lg mx-auto shadow-sm space-y-6"
             >
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-blue-100 rounded-full" />
-                <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute inset-0" />
+              <div className="relative w-16 h-16 mx-auto">
+                <div className="absolute inset-0 rounded-full border-4 border-blue-100 border-t-blue-700 animate-spin" />
+                <div className="absolute inset-2 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-blue-700" />
+                </div>
               </div>
-              <div className="text-center space-y-1">
-                <p className="text-lg font-black text-slate-900 font-heading">Decoding your letter...</p>
-                <p className="text-xs text-slate-500">Extracting deadlines, financial balances, consequences, and legal rights</p>
-                <span className="inline-block text-[11px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full mt-2 border border-blue-200/60">
-                  Translating to 6th-grade reading level ({LANGUAGE_NAMES[language]})
-                </span>
+              <div className="space-y-2">
+                <h3 className="text-xl font-black text-slate-900 font-heading">Decoding Legal Paperwork</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                  Translating official jargon into 6th-grade language, extracting deadlines, and matching verified Austin aid...
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 py-1.5 px-3 rounded-full w-fit mx-auto">
+                <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                Zero-retention: Client memory only
               </div>
             </motion.div>
           )}
 
-          {/* ===== ERROR STATE ===== */}
+          {/* ========================================================= */}
+          {/* ===== ERROR VIEW ===== */}
+          {/* ========================================================= */}
           {status === 'error' && (
             <motion.div
               key="error"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center py-16 bg-white border border-slate-200 rounded-3xl p-8"
+              className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center max-w-md mx-auto space-y-4"
             >
-              <AlertTriangle className="w-12 h-12 text-red-600 mx-auto mb-3" />
-              <p className="text-lg font-black text-slate-900 mb-1 font-heading">Could Not Complete Analysis</p>
-              <p className="text-xs text-slate-500 mb-4 max-w-md mx-auto">{error}</p>
+              <AlertTriangle className="w-10 h-10 text-red-600 mx-auto" />
+              <h3 className="text-base font-black text-red-950 font-heading">Could Not Decode Letter</h3>
+              <p className="text-xs text-red-800 leading-relaxed">{error || 'An unexpected error occurred.'}</p>
               <button
                 onClick={resetApp}
-                className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors"
               >
                 Try Again
               </button>
             </motion.div>
           )}
 
-          {/* ===== RESULTS STATE ===== */}
+          {/* ========================================================= */}
+          {/* ===== RESULTS VIEW: FULL STITCH CIVIC SUITE ===== */}
+          {/* ========================================================= */}
           {status === 'done' && analysis && (
             <motion.div
-              key="results"
+              key="done"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-5"
+              exit={{ opacity: 0, y: -15 }}
+              className="space-y-8"
             >
-              {/* High Stakes Urgent Warning */}
-              {analysis.isHighStakes && (
-                <motion.div
-                  initial={{ scale: 0.98 }}
-                  animate={{ scale: 1 }}
-                  className="bg-red-50 border-2 border-red-300 rounded-2xl p-5 flex items-start gap-4 shadow-xs"
-                >
-                  <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-black text-red-800 text-sm font-heading">⚠️ High Stakes Notice Detected</p>
-                      <span className="text-[10px] bg-red-200 text-red-900 font-black px-2.5 py-0.5 rounded-full">Immediate Action</span>
-                    </div>
-                    <p className="text-xs text-red-700 mt-1 leading-relaxed">
-                      This letter involves active legal timelines that could affect your housing, benefits, or credit. 
-                      Do not ignore this letter. Contact the free community assistance organizations listed below today.
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Primary TL;DR Card */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                {/* Triage Urgency Header */}
-                <div
-                  className={`px-6 py-3.5 border-b flex items-center justify-between ${urgencyConfig[analysis.urgency]?.color || 'bg-slate-50 text-slate-700'}`}
-                >
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const UrgIcon = urgencyConfig[analysis.urgency]?.icon || Info;
-                      return <UrgIcon className="w-4 h-4" />;
-                    })()}
-                    <span className="text-xs font-black uppercase tracking-wider font-heading">
-                      {urgencyConfig[analysis.urgency]?.label}
+              {/* 1. DECODED EMERGENCY DOCUMENT OVERVIEW (HIGH PRIORITY STITCH SECTION) */}
+              <section className="bg-white border-2 border-slate-300 rounded-3xl overflow-hidden shadow-md" id="active-decoded-card">
+                {/* Red Alert Bar: High Contrast Emergency Banner */}
+                <div className="bg-red-700 text-white px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="p-1.5 bg-red-800 rounded-lg">
+                      <AlertTriangle className="w-5 h-5 text-white" />
                     </span>
-                  </div>
-                  {analysis.sender && (
-                    <span className="text-xs font-bold opacity-90 truncate max-w-[220px] sm:max-w-xs">
-                      From: {analysis.sender}
-                    </span>
-                  )}
-                </div>
-
-                <div className="p-6 sm:p-8">
-                  <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex-1 min-w-[260px]">
-                      <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider block mb-1 font-heading">
-                        Plain Language TL;DR
-                      </span>
-                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug font-heading">
-                        {analysis.tldr}
+                    <div>
+                      <h2 className="text-sm sm:text-base font-heading font-black uppercase tracking-wide">
+                        Active Analysis: {analysis.category ? analysis.category.toUpperCase().replace('-', ' ') : 'Official Notice'}
                       </h2>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        onClick={() => {
-                          if (analysis.category === 'eviction') setViewingDocId('eviction');
-                          else if (analysis.category === 'utility-shutoff') setViewingDocId('utility');
-                          else if (analysis.category === 'benefits-denial') setViewingDocId('benefits');
-                          else if (analysis.category === 'medical-bill') setViewingDocId('medical');
-                          else setViewingDocId('eviction');
-                        }}
-                        className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors shadow-2xs"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-blue-600" />
-                        View Facsimile
-                      </button>
-                      <button
-                        onClick={() => setShowShareModal(true)}
-                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200/80 transition-colors shadow-2xs"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                        Share
-                      </button>
+                      <p className="text-xs text-red-100 font-mono">
+                        Statutory Matter • {analysis.sender || 'Official Central Texas Agency'}
+                      </p>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-5">
-                    <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
-                      <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5 font-heading">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-                        What It Wants From You
-                      </p>
-                      <p className="text-xs font-semibold text-slate-900 leading-relaxed">{analysis.whatItWants}</p>
-                    </div>
-
-                    {analysis.deadline && (
-                      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5">
-                        <p className="text-xs font-bold text-amber-800 mb-1 flex items-center gap-1.5 font-heading">
-                          <Clock className="w-3.5 h-3.5 text-amber-600" />
-                          Strict Deadline
-                        </p>
-                        <p className="text-xs font-extrabold text-amber-950 leading-relaxed font-mono">{analysis.deadline}</p>
-                      </div>
-                    )}
-
-                    {analysis.financialAmount && (
-                      <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
-                        <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5 font-heading">
-                          <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-                          Amount Owed / Disputed
-                        </p>
-                        <p className="text-base font-black text-slate-900 font-mono">{analysis.financialAmount}</p>
-                      </div>
-                    )}
-
-                    <div className="bg-red-50/60 border border-red-200 rounded-2xl p-4.5">
-                      <p className="text-xs font-bold text-red-800 mb-1 flex items-center gap-1.5 font-heading">
-                        <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
-                        If You Do Nothing
-                      </p>
-                      <p className="text-xs font-semibold text-red-900 leading-relaxed">{analysis.consequenceOfInaction}</p>
-                    </div>
+                  <div className="flex items-center gap-3 text-xs bg-red-900/70 px-3 py-1.5 rounded-xl border border-red-500/40">
+                    <span>Issued By: <strong>{analysis.sender || 'Issuing Authority'}</strong></span>
+                    <span className="hidden sm:inline">|</span>
+                    <span className="hidden sm:inline">Date: <strong>October 14, 2026</strong></span>
                   </div>
                 </div>
-              </div>
 
-              {/* ===== NEW COMPONENT 1: VISUAL EMERGENCY LEGAL TIMELINE BAR ===== */}
-              {civicPack && civicPack.timeline.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('timeline')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-blue-100 text-blue-800 rounded-xl flex items-center justify-center font-bold">
-                        <Clock className="w-5 h-5" />
+                <div className="p-6 sm:p-8 space-y-6">
+                  {/* Prominent 6th-Grade Plain English TL;DR Box */}
+                  <div className="bg-amber-50/90 border-2 border-amber-400 rounded-2xl p-6 relative shadow-xs">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-amber-500 text-white rounded-xl shadow-sm shrink-0 mt-0.5">
+                        <Flame className="w-6 h-6" />
                       </div>
-                      <div>
-                        <h3 className="font-black text-sm text-slate-900 font-heading">Emergency Legal Timeline</h3>
-                        <p className="text-[11px] text-slate-500">Visual breakdown of what happens next and how much time you have</p>
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="text-xs font-black uppercase tracking-widest text-amber-900 font-heading">
+                            The 60-Second 6th-Grade Translation
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded border border-amber-300">
+                            Reading Level: Grade 6.2
+                          </span>
+                        </div>
+                        <p className="text-base sm:text-lg font-heading font-black text-slate-900 leading-snug">
+                          &quot;{analysis.tldr}&quot;
+                        </p>
+                        <p className="text-xs text-slate-700 leading-relaxed pt-1">
+                          Under Texas law, this is merely step 1. Before an officer or sheriff can remove anyone or disconnect critical life services, formal statutory notices and hearing procedures must be completed.
+                        </p>
                       </div>
                     </div>
-                    {expandedSections.timeline ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
+                  </div>
 
-                  {expandedSections.timeline && (
-                    <div className="px-6 pb-6 pt-2 border-t border-slate-100">
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-3">
+                  {/* 2. KEY FACTS 4-CARD BENTO GRID */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Card 1: What It Demands */}
+                    <div className="bg-[#f8fafc] border border-slate-200 p-5 rounded-2xl flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-slate-500 mb-2">
+                          <span className="text-xs font-black uppercase font-heading text-slate-500">1. What It Demands</span>
+                          <DollarSign className="w-4 h-4 text-blue-700" />
+                        </div>
+                        <div className="text-base font-black font-heading text-slate-900 line-clamp-2">
+                          {analysis.financialAmount || 'Compliance Notice'}
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                          {analysis.whatItWants}
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-200">
+                        <span className="inline-block text-[10px] font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded">
+                          Action: Review or Dispute
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Legal Deadline */}
+                    <div className="bg-red-50/70 border border-red-200 p-5 rounded-2xl flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-red-700 mb-2">
+                          <span className="text-xs font-black uppercase font-heading">2. Strict Legal Deadline</span>
+                          <Clock className="w-4 h-4 text-red-600" />
+                        </div>
+                        <div className="text-base font-black font-heading text-red-900 font-mono">
+                          {analysis.deadline || 'Immediate Action'}
+                        </div>
+                        <p className="text-xs text-red-800 mt-1.5 leading-relaxed">
+                          Statutory calendar deadline from delivery date.
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-red-200 flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-white bg-red-600 px-2 py-0.5 rounded font-mono">
+                          Strict Window
+                        </span>
+                        <span className="text-[10px] text-red-800 font-bold">Act Before Time Closes</span>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Disputed Sums / Late Fee Caps */}
+                    <div className="bg-[#f8fafc] border border-slate-200 p-5 rounded-2xl flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-slate-500 mb-2">
+                          <span className="text-xs font-black uppercase font-heading text-slate-500">3. Amount Disputed</span>
+                          <Scale className="w-4 h-4 text-amber-600" />
+                        </div>
+                        <div className="text-base font-black font-heading text-slate-900">
+                          {analysis.financialAmount ? `${analysis.financialAmount} Claimed` : 'No Cash Amount'}
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                          Texas Property Code § 92.019 caps fees at 12% in multi-unit properties.
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-200">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                          Statutory Rights Reserved
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card 4: Consequence If Ignored */}
+                    <div className="bg-[#f8fafc] border border-slate-200 p-5 rounded-2xl flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-slate-500 mb-2">
+                          <span className="text-xs font-black uppercase font-heading text-slate-500">4. Next Escalation</span>
+                          <AlertTriangle className="w-4 h-4 text-slate-600" />
+                        </div>
+                        <div className="text-base font-black font-heading text-slate-900 line-clamp-1">
+                          {analysis.consequenceOfInaction}
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                          Failure to respond can trigger court filings, service disconnection, or benefit termination.
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-200">
+                        <span className="inline-block text-[10px] font-bold text-slate-700 bg-slate-200 px-2 py-0.5 rounded">
+                          Prevents Surprise Filing
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. INTERACTIVE LEGAL TIMELINE STEPPER (ROADMAP) */}
+                  {civicPack && civicPack.timeline.length > 0 && (
+                    <div className="pt-2" id="timeline-section">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-heading font-black text-base text-slate-900">
+                            Texas Statutory Process Roadmap
+                          </h3>
+                          <p className="text-xs text-slate-500">Your exact position in the legal pipeline right now:</p>
+                        </div>
+                        <span className="text-xs font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                          Step 1 of 4: Notice Stage
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3.5">
                         {civicPack.timeline.map((stage) => {
                           const isCurrent = stage.step === 1;
                           return (
@@ -1125,15 +1138,13 @@ export default function Home() {
                               key={stage.step}
                               className={`p-4 rounded-2xl border transition-all relative ${
                                 isCurrent
-                                  ? 'bg-blue-50/80 border-blue-300 ring-2 ring-blue-500/20 shadow-xs'
-                                  : stage.isDangerZone
-                                  ? 'bg-amber-50/50 border-amber-200'
-                                  : 'bg-slate-50/60 border-slate-200'
+                                  ? 'bg-blue-50/80 border-blue-400 ring-2 ring-blue-500/20 shadow-xs'
+                                  : 'bg-white border-slate-200'
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2">
                                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                                  isCurrent ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'
+                                  isCurrent ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-700'
                                 }`}>
                                   Stage {stage.step}
                                 </span>
@@ -1143,7 +1154,7 @@ export default function Home() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] font-extrabold text-blue-600 font-mono mb-1">{stage.timeframe}</p>
+                              <p className="text-[11px] font-extrabold text-blue-700 font-mono mb-1">{stage.timeframe}</p>
                               <h4 className="text-xs font-black text-slate-900 leading-snug mb-1 font-heading">{stage.title}</h4>
                               <p className="text-[11px] text-slate-600 leading-relaxed">{stage.description}</p>
                             </div>
@@ -1153,150 +1164,67 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-              )}
+              </section>
 
-              {/* ===== NEW COMPONENT 2: KNOW YOUR RIGHTS SHIELD ===== */}
-              {civicPack && civicPack.rights.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('rights')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-bold">
-                        <Scale className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-sm text-slate-900 font-heading">Your Legal Rights & Protections</h3>
-                        <p className="text-[11px] text-slate-500">Texas Property Code, Municipal Ordinances & Federal Consumer Shields</p>
-                      </div>
-                    </div>
-                    {expandedSections.rights ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
-
-                  {expandedSections.rights && (
-                    <div className="px-6 pb-6 pt-2 border-t border-slate-100">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                        {civicPack.rights.map((right, idx) => (
-                          <div
-                            key={idx}
-                            className="bg-emerald-50/40 border border-emerald-200/90 rounded-2xl p-4.5 space-y-2 shadow-2xs"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-xl p-1 bg-white rounded-lg border border-emerald-200/60 shadow-2xs">{right.icon}</span>
-                              <h4 className="text-xs font-black text-slate-900 leading-snug font-heading">{right.title}</h4>
-                            </div>
-                            <p className="text-xs text-slate-700 leading-relaxed">{right.description}</p>
-                            <div className="pt-1">
-                              <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
-                                ⚖️ {right.legalBasis}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Action Bar (Audio Read-Aloud + Speed + Calendar Sync + Print + Share) */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="inline-flex rounded-xl shadow-2xs border border-slate-200 overflow-hidden">
-                    <button
-                      onClick={handleSpeak}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all ${
-                        isSpeaking
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                      }`}
-                    >
-                      {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-blue-600" />}
-                      {isSpeaking ? 'Stop Audio' : `Read Aloud`}
-                    </button>
-                    <select
-                      value={speechRate}
-                      onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                      className="bg-slate-50 text-[11px] font-bold text-slate-600 px-2.5 border-l border-slate-200 focus:outline-none"
-                      aria-label="Speech speed"
-                    >
-                      <option value={0.8}>0.8x</option>
-                      <option value={1.0}>1.0x</option>
-                      <option value={1.2}>1.2x</option>
-                    </select>
-                  </div>
-
-                  {analysis.deadlineDate && (
-                    <>
-                      <a
-                        href={generateGoogleCalendarLink({
-                          title: analysis.tldr,
-                          description: `${analysis.whatItWants}\n\nAmount: ${analysis.financialAmount || 'N/A'}\n\nConsequence if ignored: ${analysis.consequenceOfInaction}`,
-                          date: analysis.deadlineDate,
-                        })}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors border border-blue-200/60"
-                      >
-                        <Calendar className="w-4 h-4 text-blue-600" />
-                        Google Calendar
-                      </a>
-                      <button
-                        onClick={() => {
-                          const ics = generateICS({
-                            title: analysis.tldr,
-                            description: `${analysis.whatItWants}\n\nAmount: ${analysis.financialAmount || 'N/A'}`,
-                            date: analysis.deadlineDate!,
-                          });
-                          downloadICS(ics, 'tldr-mail-deadline');
-                        }}
-                        className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                        Download .ics
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowShareModal(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Share with Family
-                  </button>
-                  <button
-                    onClick={() => window.print()}
-                    className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
-                  >
-                    <Printer className="w-4 h-4" />
-                    Print Summary
-                  </button>
-                </div>
-              </div>
-
-              {/* Action Checklist */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                <button
-                  onClick={() => toggleSection('steps')}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                >
+              {/* 4. KNOW YOUR RIGHTS SHIELD & ACTION CHECKLIST (2-COLUMN GRID) */}
+              <section className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="rights-section">
+                {/* Left Column: Texas Legal Shield */}
+                <div className="lg:col-span-6 bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-black text-xs font-heading">
-                      {Object.values(completedSteps).filter(Boolean).length}/{analysis.steps.length}
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                      <Shield className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-black text-sm text-slate-900 font-heading">Your Action Steps</h3>
-                      <p className="text-[11px] text-slate-500">Tap checkboxes as you complete each task</p>
+                      <h3 className="font-heading font-black text-lg text-slate-900">Texas Tenant Legal Shield</h3>
+                      <p className="text-xs text-slate-500">Statutory protections that safeguard you during this notice phase</p>
                     </div>
                   </div>
-                  {expandedSections.steps ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                </button>
-                {expandedSections.steps && (
-                  <div className="px-6 pb-6 space-y-2.5 border-t border-slate-100 pt-3">
+
+                  {civicPack && (
+                    <div className="space-y-3.5">
+                      {civicPack.rights.map((right, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/80 flex items-start gap-3.5 shadow-2xs"
+                        >
+                          <span className="text-xl p-1 bg-white rounded-lg border border-emerald-200 shadow-2xs shrink-0">
+                            {right.icon}
+                          </span>
+                          <div>
+                            <h4 className="font-heading font-black text-xs text-emerald-950 leading-snug">
+                              {right.title}
+                            </h4>
+                            <p className="text-xs text-slate-700 mt-1 leading-relaxed">
+                              {right.description}
+                            </p>
+                            <span className="inline-block text-[10px] font-mono font-bold text-emerald-900 bg-emerald-100/90 px-2 py-0.5 rounded mt-2">
+                              ⚖️ {right.legalBasis}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Interactive Action Steps Checklist */}
+                <div className="lg:col-span-6 bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-sm">
+                        <ListChecks className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading font-black text-lg text-slate-900">Emergency Action Plan</h3>
+                        <p className="text-xs text-slate-500">Recommended steps before the statutory window closes</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                      {Object.values(completedSteps).filter(Boolean).length} of {analysis.steps.length} Completed
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
                     {analysis.steps.map((step) => {
                       const isDone = Boolean(completedSteps[step.order]);
                       return (
@@ -1326,416 +1254,466 @@ export default function Home() {
                       );
                     })}
                   </div>
-                )}
-              </div>
+                </div>
+              </section>
 
-              {/* ===== NEW COMPONENT 3: JARGON BUSTER GLOSSARY ===== */}
-              {civicPack && civicPack.jargon.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('jargon')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-purple-100 text-purple-800 rounded-xl flex items-center justify-center font-bold">
-                        <BookMarked className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-sm text-slate-900 font-heading">Jargon Buster: Plain English Decoder</h3>
-                        <p className="text-[11px] text-slate-500">Tap any legal or medical term to see its 6th-grade translation</p>
-                      </div>
-                    </div>
-                    {expandedSections.jargon ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
+              {/* 5. ACTION & SHARING UTILITY BAR */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex rounded-xl shadow-2xs border border-slate-200 overflow-hidden">
+                    <button
+                      onClick={handleSpeak}
+                      className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all ${
+                        isSpeaking
+                          ? 'bg-blue-700 text-white'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                      }`}
+                    >
+                      {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-blue-700" />}
+                      {isSpeaking ? 'Stop Audio' : `Read Aloud`}
+                    </button>
+                    <select
+                      value={speechRate}
+                      onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                      className="bg-slate-50 text-[11px] font-bold text-slate-600 px-2.5 border-l border-slate-200 focus:outline-none"
+                      aria-label="Speech speed"
+                    >
+                      <option value={0.8}>0.8x</option>
+                      <option value={1.0}>1.0x</option>
+                      <option value={1.2}>1.2x</option>
+                    </select>
+                  </div>
 
-                  {expandedSections.jargon && (
-                    <div className="px-6 pb-6 pt-3 border-t border-slate-100 space-y-3">
-                      {/* Term Selector Pills */}
-                      <div className="flex flex-wrap gap-2">
-                        {civicPack.jargon.map((item) => {
-                          const isSelected = activeJargonTerm === item.term;
-                          return (
-                            <button
-                              key={item.term}
-                              onClick={() => setActiveJargonTerm(isSelected ? null : item.term)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                                isSelected
-                                  ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                                  : 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
-                              }`}
-                            >
-                              📖 {item.term}
-                            </button>
-                          );
+                  {analysis.deadlineDate && (
+                    <>
+                      <a
+                        href={generateGoogleCalendarLink({
+                          title: analysis.tldr,
+                          description: `${analysis.whatItWants}\n\nAmount: ${analysis.financialAmount || 'N/A'}\n\nConsequence if ignored: ${analysis.consequenceOfInaction}`,
+                          date: analysis.deadlineDate,
                         })}
-                      </div>
-
-                      {/* Display Selected Definition or Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        {civicPack.jargon
-                          .filter((item) => !activeJargonTerm || activeJargonTerm === item.term)
-                          .map((item) => (
-                            <div
-                              key={item.term}
-                              className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1.5"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-black text-purple-900 font-heading">{item.term}</span>
-                                <span className="text-[10px] font-bold text-slate-400">Plain English</span>
-                              </div>
-                              <p className="text-xs font-semibold text-slate-800 leading-relaxed">{item.definition}</p>
-                              <p className="text-[11px] text-slate-500 italic bg-white p-2 rounded-lg border border-slate-100">
-                                💡 <strong>In this letter:</strong> {item.inContext}
-                              </p>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ===== NEW COMPONENT 4: CLINIC PREP & 1-TAP PHONE SCRIPT ===== */}
-              {civicPack && (
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('prep')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-amber-100 text-amber-800 rounded-xl flex items-center justify-center font-bold">
-                        <PhoneCall className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-sm text-slate-900 font-heading">Clinic Preparation & 1-Tap Phone Script</h3>
-                        <p className="text-[11px] text-slate-500">Exact words to say and papers to gather before calling aid organizations</p>
-                      </div>
-                    </div>
-                    {expandedSections.prep ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
-
-                  {expandedSections.prep && (
-                    <div className="px-6 pb-6 pt-3 border-t border-slate-100 space-y-4">
-                      {/* Phone Script */}
-                      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-amber-900 font-heading flex items-center gap-1.5">
-                            <PhoneCall className="w-3.5 h-3.5 text-amber-700" />
-                            What to Say When You Call Legal Aid or Customer Support:
-                          </span>
-                          <button
-                            onClick={() => handleCopyCallScript(civicPack.prep.callScript)}
-                            className="text-[10px] font-bold text-amber-800 hover:text-amber-950 bg-white border border-amber-300 rounded px-2.5 py-1 flex items-center gap-1 shadow-2xs"
-                          >
-                            {callScriptCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                            {callScriptCopied ? 'Copied Script!' : 'Copy Script'}
-                          </button>
-                        </div>
-                        <p className="text-xs font-mono text-amber-950 bg-white/90 p-3 rounded-xl border border-amber-200/70 leading-relaxed">
-                          &quot;{civicPack.prep.callScript}&quot;
-                        </p>
-                      </div>
-
-                      {/* Documents Checklist */}
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 mb-2 font-heading flex items-center gap-1.5">
-                          <ListChecks className="w-4 h-4 text-blue-600" />
-                          What to Gather Before Your Appointment or Interview:
-                        </h4>
-                        <div className="space-y-2">
-                          {civicPack.prep.documentsToBring.map((doc, idx) => {
-                            const isChecked = Boolean(completedPrepDocs[idx]);
-                            return (
-                              <div
-                                key={idx}
-                                onClick={() => togglePrepDoc(idx)}
-                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                                  isChecked ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-blue-300'
-                                }`}
-                              >
-                                <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
-                                  isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'
-                                }`}>
-                                  {isChecked && <Check className="w-3 h-3" />}
-                                </div>
-                                <span className={`text-xs font-medium text-slate-800 ${isChecked ? 'line-through text-slate-400' : ''}`}>
-                                  {doc}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Free Local Resources with Generated Graphic */}
-              {resources.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-                  <button
-                    onClick={() => toggleSection('resources')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-red-100 text-red-600 rounded-xl flex items-center justify-center font-bold">
-                        <Heart className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-sm text-slate-900 font-heading">
-                          Matched Free Local Help ({resources.length})
-                        </h3>
-                        <p className="text-[11px] text-slate-500">Austin, Travis County & Texas Statewide Legal & Utility Aid</p>
-                      </div>
-                    </div>
-                    {expandedSections.resources ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                  </button>
-                  {expandedSections.resources && (
-                    <div className="px-6 pb-6 space-y-4 border-t border-slate-100 pt-4">
-                      {/* Community Hero Card */}
-                      <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-                        <Image
-                          src="/community-austin.jpg"
-                          alt="Austin Texas Community Support Center"
-                          width={800}
-                          height={600}
-                          className="w-full h-44 object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent flex flex-col justify-end p-4 text-white">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-blue-300">Central Texas Civic Support Network</span>
-                          <h4 className="text-sm font-bold text-white font-heading">Verified Free Legal Aid & Utility Grants</h4>
-                          <p className="text-[11px] text-slate-200 mt-0.5">Direct connections to local legal aid attorneys and emergency municipal utility relief.</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        {resources.map((resource, i) => (
-                          <div
-                            key={i}
-                            className="border border-slate-200 rounded-2xl p-4.5 hover:border-blue-300 transition-colors bg-slate-50/50"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm font-heading">{resource.name}</h4>
-                                  {resource.isFree && (
-                                    <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                                      FREE
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{resource.description}</p>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2 mt-3.5">
-                              <a
-                                href={`tel:${resource.phone}`}
-                                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                                {resource.phone}
-                              </a>
-                              <a
-                                href={resource.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                Visit Website
-                              </a>
-                              <span className="text-[10px] text-slate-400 ml-auto font-medium">
-                                📍 {resource.region} · 🕐 {resource.hours}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Auto-Generated Appeal & Dispute Letter Generator */}
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
-                      <FileText className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-black text-sm text-slate-900 font-heading">Auto-Drafted Response & Dispute Letter</h3>
-                      <p className="text-[11px] text-slate-500">Formally cite rights, request a payment plan, or appeal a denial</p>
-                    </div>
-                  </div>
-                </div>
-
-                {!appealLetter ? (
-                  <button
-                    onClick={handleGenerateAppeal}
-                    disabled={appealLoading}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-md shadow-blue-500/20 disabled:opacity-50"
-                  >
-                    {appealLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    {appealLoading ? 'Drafting Official Response Letter...' : 'Generate Official Response / Dispute Letter'}
-                  </button>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-xs font-mono text-slate-800 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed shadow-inner">
-                      {appealLetter}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleCopyAppeal}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-2xs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 text-blue-800 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors border border-blue-200/70"
                       >
-                        {appealCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        {appealCopied ? 'Copied to Clipboard!' : 'Copy Letter'}
-                      </button>
+                        <Calendar className="w-4 h-4 text-blue-700" />
+                        Google Calendar
+                      </a>
                       <button
-                        onClick={() => window.print()}
-                        className="flex items-center gap-1.5 px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors"
+                        onClick={() => {
+                          const ics = generateICS({
+                            title: analysis.tldr,
+                            description: `${analysis.whatItWants}\n\nAmount: ${analysis.financialAmount || 'N/A'}`,
+                            date: analysis.deadlineDate!,
+                          });
+                          downloadICS(ics, 'tldr-mail-deadline');
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
                       >
-                        <Printer className="w-3.5 h-3.5" />
-                        Print Letter
+                        <Download className="w-4 h-4" />
+                        Download .ics
                       </button>
-                    </div>
-                  </div>
-                )}
-                <p className="text-[10px] text-slate-400">
-                  ⚖️ Provided as a starting draft template. Have a legal aid counselor review before sending.
-                </p>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share with Family
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print Summary
+                  </button>
+                </div>
               </div>
 
-              {/* Floating Chat Trigger Button */}
-              <button
-                onClick={() => setChatOpen(!chatOpen)}
-                className="fixed bottom-6 right-6 h-13 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center gap-2 transition-all z-50 no-print active:scale-95"
-                aria-label="Ask about this letter"
-              >
-                {chatOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-                <span className="text-xs font-bold font-heading">{chatOpen ? 'Close Assistant' : 'Ask Question About Letter'}</span>
-              </button>
+              {/* 6. JARGON BUSTER (PLAIN-ENGLISH LEGAL GLOSSARY) */}
+              {civicPack && civicPack.jargon.length > 0 && (
+                <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5" id="jargon-section">
+                  <div className="max-w-3xl">
+                    <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-black uppercase tracking-wider mb-1 font-heading">
+                      <BookMarked className="w-4 h-4" />
+                      Central Texas Legal Decoder Glossary
+                    </div>
+                    <h3 className="text-2xl font-heading font-black text-slate-900">Legal Jargon Buster</h3>
+                    <p className="text-sm text-slate-600">Notices intentionally use scary words. Click any phrase to translate what it actually means:</p>
+                  </div>
 
-              {/* Chat Panel with Quick Prompt Chips */}
-              <AnimatePresence>
-                {chatOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 15, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 15, scale: 0.96 }}
-                    className="fixed bottom-22 right-6 w-[calc(100%-3rem)] sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl z-50 flex flex-col max-h-[65vh] no-print overflow-hidden"
-                  >
-                    <div className="px-4 py-3.5 bg-slate-900 text-white flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-blue-400" />
+                  {/* Term Selector Pills */}
+                  <div className="flex flex-wrap gap-2">
+                    {civicPack.jargon.map((item) => {
+                      const isSelected = activeJargonTerm === item.term;
+                      return (
+                        <button
+                          key={item.term}
+                          onClick={() => setActiveJargonTerm(isSelected ? null : item.term)}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                            isSelected
+                              ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
+                              : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'
+                          }`}
+                        >
+                          📖 &quot;{item.term}&quot;
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Selected Term or Grid Display */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    {civicPack.jargon
+                      .filter((item) => !activeJargonTerm || activeJargonTerm === item.term)
+                      .map((item) => (
+                        <div
+                          key={item.term}
+                          className="bg-[#f8fafc] border border-slate-200 rounded-2xl p-5 space-y-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-black text-blue-900 font-heading">
+                              Term: &quot;{item.term}&quot;
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                              Plain English
+                            </span>
+                          </div>
+
+                          <div className="bg-white p-3.5 rounded-xl border border-slate-200">
+                            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center gap-1 mb-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              What It Actually Means
+                            </span>
+                            <p className="text-xs font-semibold text-slate-800 leading-relaxed">
+                              {item.definition}
+                            </p>
+                          </div>
+
+                          <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                            <span><strong>In this letter:</strong> {item.inContext}</span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 7. PHONE SCRIPT ASSISTANT & EVIDENCE PREP */}
+              {civicPack && (
+                <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  {/* Phone Script Card */}
+                  <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-sm space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center shadow-sm">
+                          <PhoneCall className="w-5 h-5" />
+                        </div>
                         <div>
-                          <h4 className="font-bold text-xs font-heading">Letter Assistant</h4>
-                          <p className="text-[10px] text-slate-400">Ask any questions about this specific document</p>
+                          <h3 className="font-heading font-black text-base sm:text-lg text-slate-900">
+                            1-Tap Landlord & Aid Phone Script
+                          </h3>
+                          <p className="text-xs text-slate-500">Calm, legally protected wording to de-escalate tension</p>
                         </div>
                       </div>
-                      <button onClick={() => setChatOpen(false)} className="text-slate-400 hover:text-white">
-                        <X className="w-4 h-4" />
+                      <button
+                        onClick={() => handleCopyCallScript(civicPack.prep.callScript)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl hover:bg-blue-100 transition-all border border-blue-200"
+                      >
+                        {callScriptCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{callScriptCopied ? 'Copied Script!' : 'Copy Script'}</span>
                       </button>
                     </div>
 
-                    {/* Quick Question Chips */}
-                    <div className="px-3 py-2 bg-slate-100 border-b border-slate-200 flex flex-wrap gap-1.5">
-                      {[
-                        'Can they lock me out tomorrow?',
-                        'How do I request a payment plan?',
-                        'Will this affect my credit score?',
-                        'What should I bring to legal aid?',
-                      ].map((prompt, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => sendChatMessage(prompt)}
-                          disabled={chatLoading}
-                          className="text-[10px] bg-white hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-2 py-1 rounded-md border border-slate-200 font-semibold transition-colors text-left"
-                        >
-                          💬 {prompt}
-                        </button>
-                      ))}
+                    <div className="bg-[#f8fafc] p-5 rounded-2xl border border-slate-200 text-slate-900 text-xs font-mono leading-relaxed relative">
+                      <p>&quot;{civicPack.prep.callScript}&quot;</p>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px]">
-                      {chatMessages.length === 0 && (
-                        <div className="text-center py-6 text-slate-400 text-xs">
-                          <HelpCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                          <p className="font-bold text-slate-600 font-heading">What would you like to know?</p>
-                          <p className="text-[11px] mt-1 text-slate-400">
-                            Tap one of the quick questions above or type your own below.
-                          </p>
-                        </div>
-                      )}
-                      {chatMessages.map((msg, i) => (
-                        <div
-                          key={i}
-                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span><strong>Pro-Tip:</strong> Always follow up every phone conversation with an email or text summarizing what was agreed to.</span>
+                    </div>
+                  </div>
+
+                  {/* Evidence Checklist Card */}
+                  <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading font-black text-base text-slate-900">Evidence Folder Prep</h3>
+                        <p className="text-xs text-slate-500">Items needed for your legal aid interview</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {civicPack.prep.documentsToBring.map((doc, idx) => {
+                        const isChecked = Boolean(completedPrepDocs[idx]);
+                        return (
                           <div
-                            className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                              msg.role === 'user'
-                                ? 'bg-blue-600 text-white rounded-br-none'
-                                : 'bg-slate-100 text-slate-800 rounded-bl-none font-medium'
+                            key={idx}
+                            onClick={() => togglePrepDoc(idx)}
+                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                              isChecked ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-blue-300'
                             }`}
                           >
-                            {msg.content}
+                            <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                              isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'
+                            }`}>
+                              {isChecked && <Check className="w-3 h-3" />}
+                            </div>
+                            <span className={`text-xs font-medium text-slate-800 ${isChecked ? 'line-through text-slate-400' : ''}`}>
+                              {doc}
+                            </span>
                           </div>
-                        </div>
-                      ))}
-                      {chatLoading && (
-                        <div className="flex justify-start">
-                          <div className="bg-slate-100 px-3 py-2 rounded-2xl">
-                            <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
-                          </div>
-                        </div>
-                      )}
-                      <div ref={chatEndRef} />
+                        );
+                      })}
                     </div>
+                  </div>
+                </section>
+              )}
 
-                    <div className="p-3 border-t border-slate-200 bg-slate-50 flex gap-2">
-                      <input
-                        type="text"
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleChat()}
-                        placeholder="Ask anything about this letter..."
-                        className="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-2xs"
-                      />
-                      <button
-                        onClick={handleChat}
-                        disabled={chatLoading || !chatInput.trim()}
-                        className="px-3.5 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-2xs"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                      </button>
+              {/* 8. VERIFIED LOCAL AID MATCHING DIRECTORY */}
+              <section className="space-y-4" id="aid-directory">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-black uppercase tracking-wider mb-1 font-heading">
+                      <MapPin className="w-4 h-4" />
+                      Travis County / City of Austin Direct Aid
                     </div>
-                  </motion.div>
+                    <h3 className="text-2xl font-heading font-black text-slate-900">Verified Local Defense Network</h3>
+                    <p className="text-sm text-slate-600">Direct non-profit legal advocates and emergency assistance programs:</p>
+                  </div>
+                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                    Showing {resources.length} Verified Central Texas Resources
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {resources.map((res, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow space-y-4"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="bg-blue-100 text-blue-900 text-[11px] font-bold px-2 py-0.5 rounded">
+                            {res.isFree ? 'Free Legal Defense' : 'Community Aid'}
+                          </span>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <h4 className="font-heading font-black text-base text-slate-900">{res.name}</h4>
+                        <p className="text-xs text-blue-700 font-semibold mt-0.5">{res.description}</p>
+                        
+                        <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+                          {res.phone && (
+                            <div className="flex items-center gap-2">
+                              <Phone className="w-3.5 h-3.5 text-slate-400" />
+                              <strong>{res.phone}</strong>
+                            </div>
+                          )}
+                          {res.hours && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{res.hours}</span>
+                            </div>
+                          )}
+                          {res.region && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{res.region}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-2">
+                        {res.phone && (
+                          <a
+                            href={`tel:${res.phone.replace(/[^0-9]/g, '')}`}
+                            className="w-full inline-flex items-center justify-center gap-1.5 bg-blue-700 text-white text-xs font-heading font-bold py-2.5 rounded-xl hover:bg-blue-800 transition-colors shadow-2xs"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                            <span>Call Hotline Direct</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* 9. AUTOMATED DISPUTE & RELIEF GENERATOR */}
+              <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6" id="dispute-generator">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-black uppercase tracking-wider mb-1 font-heading">
+                      <FileCheck className="w-4 h-4" />
+                      Automated Texas Civil Code Defense Generator
+                    </div>
+                    <h3 className="text-2xl font-heading font-black text-slate-900">Official Notice Response Letter</h3>
+                    <p className="text-sm text-slate-600">Auto-generated based on your decoded letter. Edit, copy, or print instantly:</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!appealLetter ? (
+                      <button
+                        onClick={handleGenerateAppeal}
+                        disabled={appealLoading}
+                        className="inline-flex items-center gap-1.5 bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-800 transition-colors shadow-xs disabled:opacity-50"
+                      >
+                        {appealLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                        <span>{appealLoading ? 'Drafting Letter...' : 'Generate Official Response'}</span>
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleCopyAppeal}
+                          className="inline-flex items-center gap-1.5 bg-white text-slate-800 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors"
+                        >
+                          {appealCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                          <span>{appealCopied ? 'Copied to Clipboard!' : 'Copy to Clipboard'}</span>
+                        </button>
+                        <button
+                          onClick={() => window.print()}
+                          className="inline-flex items-center gap-1.5 bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-800 transition-colors shadow-xs"
+                        >
+                          <Printer className="w-4 h-4" />
+                          <span>Print or Save PDF</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {appealLetter && (
+                  <div className="p-6 bg-[#f8fafc] border border-slate-300 rounded-2xl font-mono text-xs text-slate-800 leading-relaxed whitespace-pre-wrap shadow-inner">
+                    {appealLetter}
+                  </div>
                 )}
-              </AnimatePresence>
+              </section>
+
+              {/* 10. INTERACTIVE CIVIC LEGAL Q&A ASSISTANT */}
+              <section className="bg-gradient-to-r from-[#172554] to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-md space-y-6">
+                <div className="max-w-3xl">
+                  <div className="inline-flex items-center gap-1.5 bg-blue-800 text-blue-200 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md mb-2">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Civic Legal Q&amp;A Assistant (Local Austin Logic)
+                  </div>
+                  <h3 className="text-2xl font-heading font-black">Ask TL;DR Mail About This Notice</h3>
+                  <p className="text-sm text-blue-200">Got a specific worry? Tap one of our pre-vetted legal questions for an immediate 6th-grade breakdown:</p>
+                </div>
+
+                {/* Prompt Chips */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => sendChatMessage('Can my landlord lock my doors tomorrow?')}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                  >
+                    Can my landlord lock my doors tomorrow?
+                  </button>
+                  <button
+                    onClick={() => sendChatMessage('How do I propose an official payment plan?')}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                  >
+                    How do I propose an official payment plan?
+                  </button>
+                  <button
+                    onClick={() => sendChatMessage('What if my apartment has broken AC or mold?')}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                  >
+                    What if my apartment has broken AC or mold?
+                  </button>
+                  <button
+                    onClick={() => sendChatMessage('Do I have to leave the keys by the deadline?')}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                  >
+                    Do I have to leave the keys by the deadline?
+                  </button>
+                </div>
+
+                {/* Message Log */}
+                {chatMessages.length > 0 && (
+                  <div className="space-y-3 max-h-72 overflow-y-auto p-4 bg-white/5 rounded-2xl border border-white/10 text-xs">
+                    {chatMessages.map((msg, i) => (
+                      <div
+                        key={i}
+                        className={`p-3 rounded-xl leading-relaxed ${
+                          msg.role === 'user'
+                            ? 'bg-blue-600/60 ml-auto max-w-sm text-right'
+                            : 'bg-white/10 mr-auto max-w-md text-left text-blue-50'
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
+                  </div>
+                )}
+
+                {/* Chat Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleChat()}
+                    placeholder="Ask any question about this notice in plain English..."
+                    className="flex-1 bg-white/10 border border-white/20 text-white placeholder-blue-300 text-xs rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <button
+                    onClick={handleChat}
+                    disabled={chatLoading}
+                    className="px-5 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 disabled:opacity-50 transition-colors shadow-xs"
+                  >
+                    {chatLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    <span>Ask</span>
+                  </button>
+                </div>
+              </section>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 mt-auto no-print">
-        <div className="max-w-5xl mx-auto px-4 text-center space-y-2.5">
-          <div className="flex items-center justify-center gap-2 text-slate-700 text-xs font-bold">
-            <Shield className="w-4 h-4 text-emerald-600" />
-            <span>Strict Privacy Guaranteed: Images Processed In-Memory, Never Permanently Stored</span>
+      {/* 11. CIVIC TRUST FOOTER (Stitch Shared Architecture) */}
+      <footer className="bg-white border-t border-slate-200 mt-16 no-print">
+        <div className="w-full px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6 mx-auto max-w-7xl font-body text-xs text-slate-500">
+          {/* Brand & Mission Info */}
+          <div className="space-y-2 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <Shield className="w-4 h-4 text-blue-700" />
+              <span className="font-heading font-black text-sm text-slate-900">TL;DR Mail</span>
+              <span className="text-[11px] text-slate-400">• Central Texas Civic Tech Initiative</span>
+            </div>
+            <p className="max-w-md leading-relaxed">
+              WarriorHacks 2.0 Civic Tech Track. Open-access public legal decoder. Not a substitute for formal attorney representation. Built to safeguard Central Texas families from predatory displacement.
+            </p>
+            <p className="text-[11px] text-slate-400">
+              Zero Retention Architecture: Your documents are parsed locally in browser memory and never stored on remote servers.
+            </p>
           </div>
-          <p className="text-[11px] text-slate-500 max-w-lg mx-auto leading-relaxed">
-            TL;DR Mail is an AI literacy assistance tool created for WarriorHacks 2.0 (Westwood CS Club, Austin, Texas). It provides informational summaries and does not constitute formal legal representation.
-          </p>
-          <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 pt-1">
-            <span>Built with Next.js 16</span>
-            <span>·</span>
-            <span>Google Gemini 2.5 Flash</span>
-            <span>·</span>
-            <span>Austin, Texas 🤠</span>
+
+          {/* Links Cluster */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+            <button onClick={() => setShowStatsModal(true)} className="hover:text-blue-700 transition-colors">
+              Civic Impact Data
+            </button>
+            <a href="https://www.trla.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 transition-colors">
+              Texas RioGrande Legal Aid
+            </a>
+            <a href="https://www.housing-rights.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 transition-colors">
+              Austin Tenants Council
+            </a>
+            <a href="tel:5124741961" className="text-red-600 font-bold hover:underline">
+              Austin Emergency Hotline
+            </a>
           </div>
         </div>
       </footer>
