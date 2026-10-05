@@ -39,6 +39,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SAMPLE_LETTERS } from '@/lib/sample-letters';
 import { generateICS, generateGoogleCalendarLink, downloadICS } from '@/lib/calendar';
 import { SpeechManager } from '@/lib/speech';
+import { DocumentVisualizer } from '@/components/DocumentVisualizer';
 import type { LetterAnalysis, LocalResource, SupportedLanguage } from '@/lib/types';
 import { LANGUAGE_NAMES } from '@/lib/types';
 
@@ -58,7 +59,8 @@ export default function Home() {
   const [letterContext, setLetterContext] = useState<string>('');
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
   const [showStatsModal, setShowStatsModal] = useState(false);
-  const [isMockMode, setIsMockMode] = useState(false);
+  const [viewingDocId, setViewingDocId] = useState<string | null>(null);
+  const [speechRate, setSpeechRate] = useState<number>(1.0);
 
   // Redaction state
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
@@ -125,7 +127,6 @@ export default function Home() {
         if (!res.ok) throw new Error(data.error || 'Analysis failed');
         setAnalysis(data.analysis);
         setResources(data.resources || []);
-        setIsMockMode(Boolean(data.isMock));
         setStatus('done');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -151,7 +152,6 @@ export default function Home() {
         if (!res.ok) throw new Error(data.error || 'Analysis failed');
         setAnalysis(data.analysis);
         setResources(data.resources || []);
-        setIsMockMode(Boolean(data.isMock));
         setStatus('done');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -285,41 +285,47 @@ export default function Home() {
     ]
       .filter(Boolean)
       .join('. ');
-    speechRef.current.speak(text, language);
+    speechRef.current.speak(text, language, speechRate);
     speechRef.current.onEnd(() => setIsSpeaking(false));
     setIsSpeaking(true);
-  }, [analysis, isSpeaking, language]);
+  }, [analysis, isSpeaking, language, speechRate]);
+
+  const sendChatMessage = useCallback(
+    async (textToSend: string) => {
+      if (!textToSend.trim() || chatLoading) return;
+      setChatInput('');
+      setChatMessages((prev) => [...prev, { role: 'user', content: textToSend }]);
+      setChatLoading(true);
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: textToSend,
+            letterContext,
+            language: LANGUAGE_NAMES[language],
+          }),
+        });
+        const data = await res.json();
+        setChatMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: data.answer || data.error || 'No response.' },
+        ]);
+      } catch {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' },
+        ]);
+      } finally {
+        setChatLoading(false);
+      }
+    },
+    [chatLoading, letterContext, language]
+  );
 
   const handleChat = useCallback(async () => {
-    if (!chatInput.trim() || chatLoading) return;
-    const userMsg = chatInput.trim();
-    setChatInput('');
-    setChatMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
-    setChatLoading(true);
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: userMsg,
-          letterContext,
-          language: LANGUAGE_NAMES[language],
-        }),
-      });
-      const data = await res.json();
-      setChatMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: data.answer || data.error || 'No response.' },
-      ]);
-    } catch {
-      setChatMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' },
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
-  }, [chatInput, chatLoading, letterContext, language]);
+    sendChatMessage(chatInput);
+  }, [chatInput, sendChatMessage]);
 
   const handleGenerateAppeal = useCallback(async () => {
     if (!analysis || appealLoading) return;
@@ -361,6 +367,7 @@ export default function Home() {
     setCompletedSteps({});
     setRawImageSrc(null);
     setHasRedactions(false);
+    setViewingDocId(null);
     speechRef.current?.stop();
     setIsSpeaking(false);
   };
@@ -497,6 +504,11 @@ export default function Home() {
         )}
       </AnimatePresence>
 
+      {/* Document Facsimile Modal */}
+      {viewingDocId && (
+        <DocumentVisualizer letterId={viewingDocId} onClose={() => setViewingDocId(null)} />
+      )}
+
       <main className="max-w-4xl mx-auto px-4 py-6 flex-1 w-full">
         <AnimatePresence mode="wait">
           {/* ===== IDLE STATE ===== */}
@@ -581,19 +593,39 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   {SAMPLE_LETTERS.map((sample) => (
-                    <button
+                    <div
                       key={sample.id}
-                      onClick={() => handleSampleSelect(sample)}
-                      className="flex flex-col text-left p-3.5 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-blue-400 rounded-xl transition-all group"
+                      className="flex flex-col justify-between p-3.5 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-blue-400 rounded-xl transition-all group text-left"
                     >
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-xl">{sample.emoji}</span>
-                        <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 leading-tight">
-                          {sample.title}
-                        </span>
+                      <button
+                        onClick={() => handleSampleSelect(sample)}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-xl">{sample.emoji}</span>
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 leading-tight">
+                            {sample.title}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-500 line-clamp-2">{sample.description}</span>
+                      </button>
+
+                      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200/60">
+                        <button
+                          onClick={() => setViewingDocId(sample.id)}
+                          className="text-[10px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" />
+                          Doc View
+                        </button>
+                        <button
+                          onClick={() => handleSampleSelect(sample)}
+                          className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-white border border-blue-200 rounded px-2 py-0.5 shadow-xs"
+                        >
+                          Decode →
+                        </button>
                       </div>
-                      <span className="text-[11px] text-slate-500 line-clamp-2">{sample.description}</span>
-                    </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -789,11 +821,26 @@ export default function Home() {
                 </div>
 
                 <div className="p-6">
-                  <div className="mb-4">
-                    <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">Plain Language TL;DR</span>
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
-                      {analysis.tldr}
-                    </h2>
+                  <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex-1 min-w-[260px]">
+                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-1">Plain Language TL;DR</span>
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                        {analysis.tldr}
+                      </h2>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (analysis.category === 'eviction') setViewingDocId('eviction');
+                        else if (analysis.category === 'utility-shutoff') setViewingDocId('utility');
+                        else if (analysis.category === 'benefits-denial') setViewingDocId('benefits');
+                        else if (analysis.category === 'medical-bill') setViewingDocId('medical');
+                        else setViewingDocId('eviction');
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex-shrink-0"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      View Original Letter Facsimile
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
@@ -836,20 +883,32 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Action Bar (Audio Read-Aloud + Calendar Sync + Print) */}
+              {/* Action Bar (Audio Read-Aloud + Speed + Calendar Sync + Print) */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={handleSpeak}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                      isSpeaking
-                        ? 'bg-blue-600 text-white ring-2 ring-blue-400'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                    }`}
-                  >
-                    {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-blue-600" />}
-                    {isSpeaking ? 'Stop Audio' : `Read Aloud (${LANGUAGE_NAMES[language]})`}
-                  </button>
+                  <div className="inline-flex rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+                    <button
+                      onClick={handleSpeak}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold transition-all ${
+                        isSpeaking
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                      }`}
+                    >
+                      {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-blue-600" />}
+                      {isSpeaking ? 'Stop Audio' : `Read Aloud`}
+                    </button>
+                    <select
+                      value={speechRate}
+                      onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                      className="bg-slate-50 text-[11px] font-bold text-slate-600 px-2 border-l border-slate-200 focus:outline-none"
+                      aria-label="Speech speed"
+                    >
+                      <option value={0.8}>0.8x</option>
+                      <option value={1.0}>1.0x</option>
+                      <option value={1.2}>1.2x</option>
+                    </select>
+                  </div>
 
                   {analysis.deadlineDate && (
                     <>
@@ -1097,14 +1156,14 @@ export default function Home() {
                 <span className="text-xs font-bold">{chatOpen ? 'Close Chat' : 'Ask Question About Letter'}</span>
               </button>
 
-              {/* Chat Panel */}
+              {/* Chat Panel with Quick Prompt Chips */}
               <AnimatePresence>
                 {chatOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: 15, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.96 }}
-                    className="fixed bottom-22 right-6 w-[calc(100%-3rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col max-h-[60vh] no-print overflow-hidden"
+                    className="fixed bottom-22 right-6 w-[calc(100%-3rem)] sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col max-h-[65vh] no-print overflow-hidden"
                   >
                     <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -1119,13 +1178,32 @@ export default function Home() {
                       </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[220px]">
+                    {/* Quick Question Chips */}
+                    <div className="px-3 py-2 bg-slate-100 border-b border-slate-200 flex flex-wrap gap-1.5">
+                      {[
+                        'Can they lock me out tomorrow?',
+                        'How do I request a payment plan?',
+                        'Will this affect my credit score?',
+                        'What should I bring to legal aid?',
+                      ].map((prompt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => sendChatMessage(prompt)}
+                          disabled={chatLoading}
+                          className="text-[10px] bg-white hover:bg-blue-50 hover:text-blue-700 text-slate-600 px-2 py-1 rounded-md border border-slate-200 font-medium transition-colors text-left"
+                        >
+                          💬 {prompt}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px]">
                       {chatMessages.length === 0 && (
                         <div className="text-center py-6 text-slate-400 text-xs">
                           <HelpCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                           <p className="font-medium">What would you like to know?</p>
                           <p className="text-[11px] mt-1 text-slate-400">
-                            Try asking: &quot;Can they lock me out tomorrow?&quot; or &quot;How do I ask for a payment plan?&quot;
+                            Tap one of the quick questions above or type your own below.
                           </p>
                         </div>
                       )}
