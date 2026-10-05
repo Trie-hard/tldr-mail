@@ -1,0 +1,73 @@
+import { GoogleGenAI } from '@google/genai';
+import { NextRequest, NextResponse } from 'next/server';
+import { getMockAppealForCategory } from '@/lib/mock-data';
+
+const APPEAL_SYSTEM_PROMPT = `You are an expert at writing formal appeal letters, dispute letters, and response letters on behalf of regular people.
+
+Rules:
+1. Write in a professional but accessible tone.
+2. Be respectful and factual.
+3. Cite relevant consumer protection rights when applicable (e.g., FDCPA for debt collection, EMTALA for emergency medical care, state tenant protection laws).
+4. Include placeholders like [YOUR NAME], [YOUR ADDRESS], [DATE] for the user to fill in.
+5. Keep the letter to one page (under 400 words).
+6. Include a clear subject line.
+7. End with a request for written confirmation of receipt.
+8. This is NOT legal advice — it's a template the user can customize.`;
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { letterContext, category, language } = body as {
+      letterContext: string;
+      category: string;
+      language?: string;
+    };
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    const langCode = language?.toLowerCase().slice(0, 2) || 'en';
+
+    if (!apiKey) {
+      const mockAppeal = getMockAppealForCategory(category, langCode);
+      if (mockAppeal) {
+        return NextResponse.json({ appealLetter: mockAppeal, isMock: true });
+      }
+    }
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY is not configured in .env.local.' },
+        { status: 500 }
+      );
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    const langInstruction =
+      language && language !== 'en' && language !== 'English'
+        ? `\nWrite the appeal letter in ${language}.`
+        : '';
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `Based on this official letter the user received, write a formal response/appeal/dispute letter they can send back.\n\nLetter category: ${category}\n\nOriginal letter:\n${letterContext}${langInstruction}\n\nFormat the response as a complete, ready-to-send letter with:\n- Recipient address block\n- Date\n- Subject line\n- Body\n- Signature block with [YOUR NAME] placeholder`,
+        config: {
+          systemInstruction: APPEAL_SYSTEM_PROMPT,
+        },
+      });
+
+      return NextResponse.json({ appealLetter: response.text });
+    } catch (genError) {
+      console.warn('Gemini appeal generation failed, trying mock fallback:', genError);
+      const mockAppeal = getMockAppealForCategory(category, langCode);
+      if (mockAppeal) {
+        return NextResponse.json({ appealLetter: mockAppeal, isMock: true });
+      }
+      throw genError;
+    }
+  } catch (error) {
+    console.error('Appeal letter error:', error);
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred.';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

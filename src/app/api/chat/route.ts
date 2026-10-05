@@ -1,0 +1,62 @@
+import { GoogleGenAI } from '@google/genai';
+import { NextRequest, NextResponse } from 'next/server';
+import { getMockChatResponse } from '@/lib/mock-data';
+
+const CHAT_SYSTEM_PROMPT = `You are TL;DR Mail's letter assistant. The user has received an official letter and has already seen a plain-language breakdown. Now they have follow-up questions.
+
+Rules:
+1. Answer at a 6th-grade reading level. Keep sentences short and clear.
+2. Be helpful and empathetic — the user may be stressed or scared.
+3. You are NOT a lawyer. If the user asks for specific legal advice, remind them to contact a legal aid organization.
+4. Always clarify that your answers are informational, not legal or financial advice.
+5. Focus on practical next steps the user can take.
+6. If the user asks in a language other than English, respond in that same language.`;
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { question, letterContext, language } = body as {
+      question: string;
+      letterContext: string;
+      language?: string;
+    };
+
+    if (!question) {
+      return NextResponse.json({ error: 'Question is required.' }, { status: 400 });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      const mockAnswer = getMockChatResponse(question, letterContext || '');
+      return NextResponse.json({ answer: mockAnswer, isMock: true });
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    const langInstruction =
+      language && language !== 'en' && language !== 'English'
+        ? `\nRespond in ${language}.`
+        : '';
+
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `The user received this letter:\n\n${letterContext}\n\nTheir question: ${question}${langInstruction}`,
+        config: {
+          systemInstruction: CHAT_SYSTEM_PROMPT,
+        },
+      });
+
+      return NextResponse.json({ answer: response.text });
+    } catch (genError) {
+      console.warn('Gemini chat failed, using fallback:', genError);
+      const mockAnswer = getMockChatResponse(question, letterContext || '');
+      return NextResponse.json({ answer: mockAnswer, isMock: true });
+    }
+  } catch (error) {
+    console.error('Chat error:', error);
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred.';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
