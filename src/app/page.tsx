@@ -36,13 +36,19 @@ import {
   HelpCircle,
   Sparkles,
   ArrowRight,
-  MapPin,
+  Scale,
+  Share2,
+  QrCode,
+  BookMarked,
+  PhoneCall,
+  ListChecks,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SAMPLE_LETTERS } from '@/lib/sample-letters';
 import { generateICS, generateGoogleCalendarLink, downloadICS } from '@/lib/calendar';
 import { SpeechManager } from '@/lib/speech';
 import { DocumentVisualizer } from '@/components/DocumentVisualizer';
+import { getCivicKnowledge } from '@/lib/civic-knowledge';
 import type { LetterAnalysis, LocalResource, SupportedLanguage } from '@/lib/types';
 import { LANGUAGE_NAMES } from '@/lib/types';
 
@@ -61,10 +67,15 @@ export default function Home() {
   const [language, setLanguage] = useState<SupportedLanguage>('en');
   const [letterContext, setLetterContext] = useState<string>('');
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+  const [completedPrepDocs, setCompletedPrepDocs] = useState<Record<number, boolean>>({});
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [callScriptCopied, setCallScriptCopied] = useState(false);
   const [viewingDocId, setViewingDocId] = useState<string | null>(null);
   const [speechRate, setSpeechRate] = useState<number>(1.0);
   const [sampleFilter, setSampleFilter] = useState<string>('all');
+  const [activeJargonTerm, setActiveJargonTerm] = useState<string | null>(null);
 
   // Redaction state
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
@@ -75,9 +86,12 @@ export default function Home() {
 
   // Sections toggle
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    timeline: true,
+    rights: true,
     steps: true,
+    jargon: true,
+    prep: true,
     resources: true,
-    facts: true,
   });
 
   // Chat state
@@ -115,6 +129,10 @@ export default function Home() {
 
   const toggleStep = (stepOrder: number) => {
     setCompletedSteps((prev) => ({ ...prev, [stepOrder]: !prev[stepOrder] }));
+  };
+
+  const togglePrepDoc = (index: number) => {
+    setCompletedPrepDocs((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
   const scrollToUpload = () => {
@@ -365,6 +383,20 @@ export default function Home() {
     setTimeout(() => setAppealCopied(false), 2000);
   }, [appealLetter]);
 
+  const handleCopyShareText = () => {
+    if (!analysis) return;
+    const shareText = `📋 TL;DR Mail Summary\nNotice: ${analysis.tldr}\n\n⚠️ Deadline: ${analysis.deadline || 'None listed'}\n💰 Balance: ${analysis.financialAmount || 'N/A'}\n\nWhat it wants: ${analysis.whatItWants}\n\nConsequence if ignored: ${analysis.consequenceOfInaction}\n\nMatched Free Aid: Texas RioGrande Legal Aid (1-888-988-9996)\nDecoded with TL;DR Mail`;
+    navigator.clipboard.writeText(shareText);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
+
+  const handleCopyCallScript = (script: string) => {
+    navigator.clipboard.writeText(script);
+    setCallScriptCopied(true);
+    setTimeout(() => setCallScriptCopied(false), 2000);
+  };
+
   const resetApp = () => {
     setStatus('idle');
     setAnalysis(null);
@@ -374,9 +406,12 @@ export default function Home() {
     setChatMessages([]);
     setAppealLetter(null);
     setCompletedSteps({});
+    setCompletedPrepDocs({});
     setRawImageSrc(null);
     setHasRedactions(false);
     setViewingDocId(null);
+    setActiveJargonTerm(null);
+    setShowShareModal(false);
     speechRef.current?.stop();
     setIsSpeaking(false);
   };
@@ -389,6 +424,8 @@ export default function Home() {
     if (sampleFilter === 'medical') return s.id === 'medical';
     return true;
   });
+
+  const civicPack = analysis ? getCivicKnowledge(analysis.category) : null;
 
   const urgencyConfig = {
     critical: {
@@ -426,8 +463,8 @@ export default function Home() {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none">TL;DR Mail</h1>
-                <span className="text-[10px] font-extrabold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">v2.0</span>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight leading-none font-heading">TL;DR Mail</h1>
+                <span className="text-[10px] font-extrabold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Austin Ed.</span>
               </div>
               <p className="text-[11px] text-slate-500 hidden sm:block">Decode confusing official mail at a 6th-grade reading level</p>
             </div>
@@ -493,7 +530,7 @@ export default function Home() {
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900">Why TL;DR Mail Exists</h3>
+                  <h3 className="text-lg font-black text-slate-900 font-heading">Why TL;DR Mail Exists</h3>
                   <p className="text-[11px] text-slate-500">The paperwork literacy crisis in Central Texas</p>
                 </div>
               </div>
@@ -502,22 +539,22 @@ export default function Home() {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div className="bg-red-50 border border-red-200 rounded-xl p-3.5">
-                  <span className="text-2xl font-black text-red-700">32,000+</span>
+                  <span className="text-2xl font-black text-red-700 font-heading">32,000+</span>
                   <p className="text-xs font-bold text-red-900 mt-0.5">Eviction Filings / Year</p>
                   <p className="text-[11px] text-red-700">Travis & Williamson County, TX courts.</p>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
-                  <span className="text-2xl font-black text-amber-700">1 in 5</span>
+                  <span className="text-2xl font-black text-amber-700 font-heading">1 in 5</span>
                   <p className="text-xs font-bold text-amber-900 mt-0.5">Limited Literacy</p>
                   <p className="text-[11px] text-amber-800">Adults struggle with official legal English.</p>
                 </div>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
-                  <span className="text-2xl font-black text-blue-700">$180M+</span>
+                  <span className="text-2xl font-black text-blue-700 font-heading">$180M+</span>
                   <p className="text-xs font-bold text-blue-900 mt-0.5">Lost Texas Benefits</p>
                   <p className="text-[11px] text-blue-800">SNAP & Medicaid dropped over paperwork clerical errors.</p>
                 </div>
                 <div className="bg-green-50 border border-green-200 rounded-xl p-3.5">
-                  <span className="text-2xl font-black text-green-700">72 Hours</span>
+                  <span className="text-2xl font-black text-green-700 font-heading">72 Hours</span>
                   <p className="text-xs font-bold text-green-900 mt-0.5">Standard Texas Notice</p>
                   <p className="text-[11px] text-green-800">Tenants often get only 3 days before a lawsuit is filed.</p>
                 </div>
@@ -528,6 +565,64 @@ export default function Home() {
               >
                 Back to Decoder
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Family / Caseworker Share Modal */}
+      <AnimatePresence>
+        {showShareModal && analysis && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative space-y-4"
+            >
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
+                  <Share2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 font-heading">Share Breakdown</h3>
+                  <p className="text-xs text-slate-500">Send to an adult child, caseworker, or clinic volunteer</p>
+                </div>
+              </div>
+
+              {/* Simulated QR Code */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center text-center">
+                <div className="w-32 h-32 bg-white border border-slate-300 rounded-xl p-2 shadow-xs flex items-center justify-center mb-2">
+                  <QrCode className="w-24 h-24 text-slate-900" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-700">Scan with phone camera to view decoded summary</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">Encrypted client-side transfer</span>
+              </div>
+
+              {/* Copy WhatsApp / SMS text */}
+              <div className="space-y-2">
+                <button
+                  onClick={handleCopyShareText}
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-md shadow-blue-500/20"
+                >
+                  {shareCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {shareCopied ? 'Summary Copied to Clipboard!' : 'Copy Summary for WhatsApp / Text'}
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print Official 1-Page Case Brief
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
@@ -559,7 +654,7 @@ export default function Home() {
                     <span className="text-slate-500 font-medium">Austin, Texas</span>
                   </div>
 
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.12]">
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.12] font-heading">
                     Don&apos;t Let Confusing Mail{' '}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                       Ruin Your Life.
@@ -639,7 +734,7 @@ export default function Home() {
                 <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-xs">
                   <Upload className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-slate-900 font-black text-lg mb-1">Upload or Snap Your Letter</h3>
+                <h3 className="text-slate-900 font-black text-lg mb-1 font-heading">Upload or Snap Your Letter</h3>
                 <p className="text-slate-500 text-xs mb-5 max-w-sm mx-auto">
                   Drag and drop a photo or scan of your official document (PNG, JPG, PDF)
                 </p>
@@ -685,7 +780,7 @@ export default function Home() {
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-black text-slate-900">Interactive Demo Mailbox (Instant Test)</h3>
+                      <h3 className="text-sm font-black text-slate-900 font-heading">Interactive Demo Mailbox (Instant Test)</h3>
                       <p className="text-[11px] text-slate-500">Judges: Test realistic Central Texas letters with 1 click</p>
                     </div>
                   </div>
@@ -737,7 +832,7 @@ export default function Home() {
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-2xl p-1 bg-white rounded-lg border border-slate-200/60 shadow-2xs">{sample.emoji}</span>
-                          <span className="text-xs font-black text-slate-900 group-hover:text-blue-600 leading-tight">
+                          <span className="text-xs font-black text-slate-900 group-hover:text-blue-600 leading-tight font-heading">
                             {sample.title}
                           </span>
                         </div>
@@ -750,7 +845,7 @@ export default function Home() {
                           className="text-[10px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1"
                         >
                           <Eye className="w-3 h-3" />
-                          View Paper Facsimile
+                          View Facsimile
                         </button>
                         <button
                           onClick={() => handleSampleSelect(sample)}
@@ -781,7 +876,7 @@ export default function Home() {
                     <Shield className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-slate-900">Privacy Shield: Redact Sensitive Info</h3>
+                    <h3 className="text-base font-black text-slate-900 font-heading">Privacy Shield: Redact Sensitive Info</h3>
                     <p className="text-xs text-slate-500">Draw with your finger or mouse over SSNs, bank accounts, or names you wish to blackout</p>
                   </div>
                 </div>
@@ -846,7 +941,7 @@ export default function Home() {
                 <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute inset-0" />
               </div>
               <div className="text-center space-y-1">
-                <p className="text-lg font-black text-slate-900">Decoding your letter...</p>
+                <p className="text-lg font-black text-slate-900 font-heading">Decoding your letter...</p>
                 <p className="text-xs text-slate-500">Extracting deadlines, financial balances, consequences, and legal rights</p>
                 <span className="inline-block text-[11px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full mt-2 border border-blue-200/60">
                   Translating to 6th-grade reading level ({LANGUAGE_NAMES[language]})
@@ -865,7 +960,7 @@ export default function Home() {
               className="text-center py-16 bg-white border border-slate-200 rounded-3xl p-8"
             >
               <AlertTriangle className="w-12 h-12 text-red-600 mx-auto mb-3" />
-              <p className="text-lg font-black text-slate-900 mb-1">Could Not Complete Analysis</p>
+              <p className="text-lg font-black text-slate-900 mb-1 font-heading">Could Not Complete Analysis</p>
               <p className="text-xs text-slate-500 mb-4 max-w-md mx-auto">{error}</p>
               <button
                 onClick={resetApp}
@@ -894,7 +989,7 @@ export default function Home() {
                   <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="font-black text-red-800 text-sm">⚠️ High Stakes Notice Detected</p>
+                      <p className="font-black text-red-800 text-sm font-heading">⚠️ High Stakes Notice Detected</p>
                       <span className="text-[10px] bg-red-200 text-red-900 font-black px-2.5 py-0.5 rounded-full">Immediate Action</span>
                     </div>
                     <p className="text-xs text-red-700 mt-1 leading-relaxed">
@@ -916,7 +1011,7 @@ export default function Home() {
                       const UrgIcon = urgencyConfig[analysis.urgency]?.icon || Info;
                       return <UrgIcon className="w-4 h-4" />;
                     })()}
-                    <span className="text-xs font-black uppercase tracking-wider">
+                    <span className="text-xs font-black uppercase tracking-wider font-heading">
                       {urgencyConfig[analysis.urgency]?.label}
                     </span>
                   </div>
@@ -930,29 +1025,40 @@ export default function Home() {
                 <div className="p-6 sm:p-8">
                   <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1 min-w-[260px]">
-                      <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider block mb-1">Plain Language TL;DR</span>
-                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                      <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider block mb-1 font-heading">
+                        Plain Language TL;DR
+                      </span>
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug font-heading">
                         {analysis.tldr}
                       </h2>
                     </div>
-                    <button
-                      onClick={() => {
-                        if (analysis.category === 'eviction') setViewingDocId('eviction');
-                        else if (analysis.category === 'utility-shutoff') setViewingDocId('utility');
-                        else if (analysis.category === 'benefits-denial') setViewingDocId('benefits');
-                        else if (analysis.category === 'medical-bill') setViewingDocId('medical');
-                        else setViewingDocId('eviction');
-                      }}
-                      className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex-shrink-0 shadow-2xs"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-blue-600" />
-                      View Scanned Facsimile
-                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          if (analysis.category === 'eviction') setViewingDocId('eviction');
+                          else if (analysis.category === 'utility-shutoff') setViewingDocId('utility');
+                          else if (analysis.category === 'benefits-denial') setViewingDocId('benefits');
+                          else if (analysis.category === 'medical-bill') setViewingDocId('medical');
+                          else setViewingDocId('eviction');
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-200 transition-colors shadow-2xs"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-blue-600" />
+                        View Facsimile
+                      </button>
+                      <button
+                        onClick={() => setShowShareModal(true)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200/80 transition-colors shadow-2xs"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        Share
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-5">
                     <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
-                      <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5 font-heading">
                         <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                         What It Wants From You
                       </p>
@@ -961,26 +1067,26 @@ export default function Home() {
 
                     {analysis.deadline && (
                       <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5">
-                        <p className="text-xs font-bold text-amber-800 mb-1 flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-amber-800 mb-1 flex items-center gap-1.5 font-heading">
                           <Clock className="w-3.5 h-3.5 text-amber-600" />
                           Strict Deadline
                         </p>
-                        <p className="text-xs font-extrabold text-amber-950 leading-relaxed">{analysis.deadline}</p>
+                        <p className="text-xs font-extrabold text-amber-950 leading-relaxed font-mono">{analysis.deadline}</p>
                       </div>
                     )}
 
                     {analysis.financialAmount && (
                       <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4.5">
-                        <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5 font-heading">
                           <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                           Amount Owed / Disputed
                         </p>
-                        <p className="text-base font-black text-slate-900">{analysis.financialAmount}</p>
+                        <p className="text-base font-black text-slate-900 font-mono">{analysis.financialAmount}</p>
                       </div>
                     )}
 
                     <div className="bg-red-50/60 border border-red-200 rounded-2xl p-4.5">
-                      <p className="text-xs font-bold text-red-800 mb-1 flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-red-800 mb-1 flex items-center gap-1.5 font-heading">
                         <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
                         If You Do Nothing
                       </p>
@@ -990,7 +1096,111 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Action Bar (Audio Read-Aloud + Speed + Calendar Sync + Print) */}
+              {/* ===== NEW COMPONENT 1: VISUAL EMERGENCY LEGAL TIMELINE BAR ===== */}
+              {civicPack && civicPack.timeline.length > 0 && (
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                  <button
+                    onClick={() => toggleSection('timeline')}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-blue-100 text-blue-800 rounded-xl flex items-center justify-center font-bold">
+                        <Clock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-slate-900 font-heading">Emergency Legal Timeline</h3>
+                        <p className="text-[11px] text-slate-500">Visual breakdown of what happens next and how much time you have</p>
+                      </div>
+                    </div>
+                    {expandedSections.timeline ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+
+                  {expandedSections.timeline && (
+                    <div className="px-6 pb-6 pt-2 border-t border-slate-100">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-3">
+                        {civicPack.timeline.map((stage) => {
+                          const isCurrent = stage.step === 1;
+                          return (
+                            <div
+                              key={stage.step}
+                              className={`p-4 rounded-2xl border transition-all relative ${
+                                isCurrent
+                                  ? 'bg-blue-50/80 border-blue-300 ring-2 ring-blue-500/20 shadow-xs'
+                                  : stage.isDangerZone
+                                  ? 'bg-amber-50/50 border-amber-200'
+                                  : 'bg-slate-50/60 border-slate-200'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                  isCurrent ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'
+                                }`}>
+                                  Stage {stage.step}
+                                </span>
+                                {isCurrent && (
+                                  <span className="text-[10px] font-black text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full animate-pulse">
+                                    YOU ARE HERE
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] font-extrabold text-blue-600 font-mono mb-1">{stage.timeframe}</p>
+                              <h4 className="text-xs font-black text-slate-900 leading-snug mb-1 font-heading">{stage.title}</h4>
+                              <p className="text-[11px] text-slate-600 leading-relaxed">{stage.description}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ===== NEW COMPONENT 2: KNOW YOUR RIGHTS SHIELD ===== */}
+              {civicPack && civicPack.rights.length > 0 && (
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                  <button
+                    onClick={() => toggleSection('rights')}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-bold">
+                        <Scale className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-slate-900 font-heading">Your Legal Rights & Protections</h3>
+                        <p className="text-[11px] text-slate-500">Texas Property Code, Municipal Ordinances & Federal Consumer Shields</p>
+                      </div>
+                    </div>
+                    {expandedSections.rights ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+
+                  {expandedSections.rights && (
+                    <div className="px-6 pb-6 pt-2 border-t border-slate-100">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                        {civicPack.rights.map((right, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-emerald-50/40 border border-emerald-200/90 rounded-2xl p-4.5 space-y-2 shadow-2xs"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl p-1 bg-white rounded-lg border border-emerald-200/60 shadow-2xs">{right.icon}</span>
+                              <h4 className="text-xs font-black text-slate-900 leading-snug font-heading">{right.title}</h4>
+                            </div>
+                            <p className="text-xs text-slate-700 leading-relaxed">{right.description}</p>
+                            <div className="pt-1">
+                              <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md">
+                                ⚖️ {right.legalBasis}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Bar (Audio Read-Aloud + Speed + Calendar Sync + Print + Share) */}
               <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="inline-flex rounded-xl shadow-2xs border border-slate-200 overflow-hidden">
@@ -1050,13 +1260,22 @@ export default function Home() {
                   )}
                 </div>
 
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
-                >
-                  <Printer className="w-4 h-4" />
-                  Print 1-Page Summary
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share with Family
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print Summary
+                  </button>
+                </div>
               </div>
 
               {/* Action Checklist */}
@@ -1066,11 +1285,11 @@ export default function Home() {
                   className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-black text-xs">
+                    <div className="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-xl flex items-center justify-center font-black text-xs font-heading">
                       {Object.values(completedSteps).filter(Boolean).length}/{analysis.steps.length}
                     </div>
                     <div>
-                      <h3 className="font-black text-sm text-slate-900">Your Action Steps</h3>
+                      <h3 className="font-black text-sm text-slate-900 font-heading">Your Action Steps</h3>
                       <p className="text-[11px] text-slate-500">Tap checkboxes as you complete each task</p>
                     </div>
                   </div>
@@ -1099,7 +1318,7 @@ export default function Home() {
                             <p className={`text-xs font-bold text-slate-900 leading-snug ${isDone ? 'line-through text-slate-500' : ''}`}>
                               {step.action}
                             </p>
-                            <span className="inline-block text-[10px] font-bold text-slate-500 bg-white border border-slate-200 rounded px-2 py-0.5 mt-1.5 shadow-2xs">
+                            <span className="inline-block text-[10px] font-bold text-slate-500 bg-white border border-slate-200 rounded px-2 py-0.5 mt-1.5 shadow-2xs font-mono">
                               ⏰ {step.timeframe}
                             </span>
                           </div>
@@ -1109,6 +1328,148 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+              {/* ===== NEW COMPONENT 3: JARGON BUSTER GLOSSARY ===== */}
+              {civicPack && civicPack.jargon.length > 0 && (
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                  <button
+                    onClick={() => toggleSection('jargon')}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-purple-100 text-purple-800 rounded-xl flex items-center justify-center font-bold">
+                        <BookMarked className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-slate-900 font-heading">Jargon Buster: Plain English Decoder</h3>
+                        <p className="text-[11px] text-slate-500">Tap any legal or medical term to see its 6th-grade translation</p>
+                      </div>
+                    </div>
+                    {expandedSections.jargon ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+
+                  {expandedSections.jargon && (
+                    <div className="px-6 pb-6 pt-3 border-t border-slate-100 space-y-3">
+                      {/* Term Selector Pills */}
+                      <div className="flex flex-wrap gap-2">
+                        {civicPack.jargon.map((item) => {
+                          const isSelected = activeJargonTerm === item.term;
+                          return (
+                            <button
+                              key={item.term}
+                              onClick={() => setActiveJargonTerm(isSelected ? null : item.term)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                                isSelected
+                                  ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                                  : 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100'
+                              }`}
+                            >
+                              📖 {item.term}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Display Selected Definition or Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        {civicPack.jargon
+                          .filter((item) => !activeJargonTerm || activeJargonTerm === item.term)
+                          .map((item) => (
+                            <div
+                              key={item.term}
+                              className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1.5"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-black text-purple-900 font-heading">{item.term}</span>
+                                <span className="text-[10px] font-bold text-slate-400">Plain English</span>
+                              </div>
+                              <p className="text-xs font-semibold text-slate-800 leading-relaxed">{item.definition}</p>
+                              <p className="text-[11px] text-slate-500 italic bg-white p-2 rounded-lg border border-slate-100">
+                                💡 <strong>In this letter:</strong> {item.inContext}
+                              </p>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ===== NEW COMPONENT 4: CLINIC PREP & 1-TAP PHONE SCRIPT ===== */}
+              {civicPack && (
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                  <button
+                    onClick={() => toggleSection('prep')}
+                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-amber-100 text-amber-800 rounded-xl flex items-center justify-center font-bold">
+                        <PhoneCall className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-slate-900 font-heading">Clinic Preparation & 1-Tap Phone Script</h3>
+                        <p className="text-[11px] text-slate-500">Exact words to say and papers to gather before calling aid organizations</p>
+                      </div>
+                    </div>
+                    {expandedSections.prep ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+
+                  {expandedSections.prep && (
+                    <div className="px-6 pb-6 pt-3 border-t border-slate-100 space-y-4">
+                      {/* Phone Script */}
+                      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4.5 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-amber-900 font-heading flex items-center gap-1.5">
+                            <PhoneCall className="w-3.5 h-3.5 text-amber-700" />
+                            What to Say When You Call Legal Aid or Customer Support:
+                          </span>
+                          <button
+                            onClick={() => handleCopyCallScript(civicPack.prep.callScript)}
+                            className="text-[10px] font-bold text-amber-800 hover:text-amber-950 bg-white border border-amber-300 rounded px-2.5 py-1 flex items-center gap-1 shadow-2xs"
+                          >
+                            {callScriptCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            {callScriptCopied ? 'Copied Script!' : 'Copy Script'}
+                          </button>
+                        </div>
+                        <p className="text-xs font-mono text-amber-950 bg-white/90 p-3 rounded-xl border border-amber-200/70 leading-relaxed">
+                          &quot;{civicPack.prep.callScript}&quot;
+                        </p>
+                      </div>
+
+                      {/* Documents Checklist */}
+                      <div>
+                        <h4 className="text-xs font-black text-slate-900 mb-2 font-heading flex items-center gap-1.5">
+                          <ListChecks className="w-4 h-4 text-blue-600" />
+                          What to Gather Before Your Appointment or Interview:
+                        </h4>
+                        <div className="space-y-2">
+                          {civicPack.prep.documentsToBring.map((doc, idx) => {
+                            const isChecked = Boolean(completedPrepDocs[idx]);
+                            return (
+                              <div
+                                key={idx}
+                                onClick={() => togglePrepDoc(idx)}
+                                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                  isChecked ? 'bg-emerald-50/50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-blue-300'
+                                }`}
+                              >
+                                <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                                  isChecked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'
+                                }`}>
+                                  {isChecked && <Check className="w-3 h-3" />}
+                                </div>
+                                <span className={`text-xs font-medium text-slate-800 ${isChecked ? 'line-through text-slate-400' : ''}`}>
+                                  {doc}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Free Local Resources with Generated Graphic */}
               {resources.length > 0 && (
@@ -1122,7 +1483,7 @@ export default function Home() {
                         <Heart className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="font-black text-sm text-slate-900">
+                        <h3 className="font-black text-sm text-slate-900 font-heading">
                           Matched Free Local Help ({resources.length})
                         </h3>
                         <p className="text-[11px] text-slate-500">Austin, Travis County & Texas Statewide Legal & Utility Aid</p>
@@ -1143,7 +1504,7 @@ export default function Home() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent flex flex-col justify-end p-4 text-white">
                           <span className="text-[10px] font-black uppercase tracking-wider text-blue-300">Central Texas Civic Support Network</span>
-                          <h4 className="text-sm font-bold text-white">Verified Free Legal Aid & Utility Grants</h4>
+                          <h4 className="text-sm font-bold text-white font-heading">Verified Free Legal Aid & Utility Grants</h4>
                           <p className="text-[11px] text-slate-200 mt-0.5">Direct connections to local legal aid attorneys and emergency municipal utility relief.</p>
                         </div>
                       </div>
@@ -1157,7 +1518,7 @@ export default function Home() {
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{resource.name}</h4>
+                                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm font-heading">{resource.name}</h4>
                                   {resource.isFree && (
                                     <span className="text-[10px] font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
                                       FREE
@@ -1204,7 +1565,7 @@ export default function Home() {
                       <FileText className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-black text-sm text-slate-900">Auto-Drafted Response & Dispute Letter</h3>
+                      <h3 className="font-black text-sm text-slate-900 font-heading">Auto-Drafted Response & Dispute Letter</h3>
                       <p className="text-[11px] text-slate-500">Formally cite rights, request a payment plan, or appeal a denial</p>
                     </div>
                   </div>
@@ -1254,7 +1615,7 @@ export default function Home() {
                 aria-label="Ask about this letter"
               >
                 {chatOpen ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
-                <span className="text-xs font-bold">{chatOpen ? 'Close Assistant' : 'Ask Question About Letter'}</span>
+                <span className="text-xs font-bold font-heading">{chatOpen ? 'Close Assistant' : 'Ask Question About Letter'}</span>
               </button>
 
               {/* Chat Panel with Quick Prompt Chips */}
@@ -1270,7 +1631,7 @@ export default function Home() {
                       <div className="flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-blue-400" />
                         <div>
-                          <h4 className="font-bold text-xs">Letter Assistant</h4>
+                          <h4 className="font-bold text-xs font-heading">Letter Assistant</h4>
                           <p className="text-[10px] text-slate-400">Ask any questions about this specific document</p>
                         </div>
                       </div>
@@ -1302,7 +1663,7 @@ export default function Home() {
                       {chatMessages.length === 0 && (
                         <div className="text-center py-6 text-slate-400 text-xs">
                           <HelpCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                          <p className="font-bold text-slate-600">What would you like to know?</p>
+                          <p className="font-bold text-slate-600 font-heading">What would you like to know?</p>
                           <p className="text-[11px] mt-1 text-slate-400">
                             Tap one of the quick questions above or type your own below.
                           </p>
