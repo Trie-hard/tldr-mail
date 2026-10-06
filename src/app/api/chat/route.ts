@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Question is required.' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const headerApiKey = request.headers.get('x-gemini-api-key');
+    const rawApiKey = headerApiKey || (body as { apiKey?: string }).apiKey || process.env.GEMINI_API_KEY;
+    const apiKey = rawApiKey && rawApiKey.trim() !== '' ? rawApiKey.trim() : undefined;
 
     if (!apiKey) {
       const mockAnswer = getMockChatResponse(question, letterContext || '');
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash',
         contents: `The user received this letter:\n\n${letterContext}\n\nTheir question: ${question}${langInstruction}`,
         config: {
           systemInstruction: CHAT_SYSTEM_PROMPT,

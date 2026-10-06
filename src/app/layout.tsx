@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const newsreader = Newsreader({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const inter = Inter({
+const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -54,16 +54,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${newsreader.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="#1a4d3e" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
-        {children}
-      </body>
+      <body className="min-h-screen flex flex-col antialiased">{children}</body>
     </html>
   );
 }

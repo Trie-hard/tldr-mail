@@ -1,21 +1,82 @@
 @import "tailwindcss";
 
+@theme {
+  --color-paper: #f3efe6;
+  --color-paper-elevated: #faf8f4;
+  --color-surface: #fffdf9;
+  --color-ink: #1c1917;
+  --color-ink-muted: #6b645c;
+  --color-line: #ddd5c8;
+  --color-line-strong: #c4b8a8;
+  --color-accent: #1a4d3e;
+  --color-accent-hover: #143d32;
+  --color-accent-soft: #e6efe9;
+  --color-accent-muted: #3d6b5c;
+  --color-urgent: #9a3412;
+  --color-urgent-soft: #fef6ee;
+  --color-urgent-line: #f0d4c4;
+  --color-primary: #1e3a8a;
+  --color-primary-container: #eff6ff;
+  --color-emergency: #b91c1c;
+  --color-emergency-container: #fef2f2;
+  --color-emergency-border: #f87171;
+  --color-warning: #d97706;
+  --color-calm: #047857;
+  --font-sans: var(--font-body), "IBM Plex Sans", system-ui, sans-serif;
+  --font-serif: var(--font-heading), "Newsreader", Georgia, serif;
+  --font-mono: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+
 :root {
-  --font-body: var(--font-body), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-heading: var(--font-heading), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: var(--font-mono), 'JetBrains Mono', monospace;
+  --font-body: var(--font-body);
+  --font-heading: var(--font-heading);
+}
+
+.text-scale-large {
+  font-size: 1.125rem;
+}
+
+.text-scale-xlarge {
+  font-size: 1.25rem;
 }
 
 body {
-  font-family: var(--font-body);
-  letter-spacing: -0.012em;
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
 }
 
-h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: var(--font-heading);
-  letter-spacing: -0.025em;
+h1,
+h2,
+h3,
+.font-heading {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-display {
+  font-family: var(--font-serif);
+}
+
+/* Primary actions */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-surface transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:border-line-strong hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30;
+}
+
+.card {
+  @apply rounded-2xl border border-line bg-surface shadow-[0_1px_0_rgba(28,25,23,0.04)];
+}
+
+.tab-active {
+  @apply border-accent text-accent;
 }
 
 /* Print styles for 1-page summary */
@@ -43,25 +104,19 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   display: none;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-paper);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-line-strong);
   border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* RTL support for Arabic */
-[dir='rtl'] {
+[dir="rtl"] {
   text-align: right;
 }

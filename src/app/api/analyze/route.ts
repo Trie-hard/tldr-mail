@@ -112,26 +112,30 @@ Rules:
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { imageBase64, mimeType, textContent, language } = body as {
+    const { imageBase64, mimeType, textContent, language, demoMode, apiKey: bodyApiKey } = body as {
       imageBase64?: string;
       mimeType?: string;
       textContent?: string;
       language?: string;
+      demoMode?: boolean;
+      apiKey?: string;
     };
 
-    if (!imageBase64 && !textContent) {
+    if (!imageBase64 && !textContent && !demoMode) {
       return NextResponse.json(
         { error: 'Either imageBase64 or textContent is required.' },
         { status: 400 }
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const headerApiKey = request.headers.get('x-gemini-api-key');
+    const rawApiKey = headerApiKey || bodyApiKey || process.env.GEMINI_API_KEY;
+    const apiKey = rawApiKey && rawApiKey.trim() !== '' ? rawApiKey.trim() : undefined;
 
-    // Check if we can use mock data (if no API key or textContent matches a sample letter)
+    // Check if we can use mock data (if demoMode, or if textContent matches a sample letter without an API key)
     if (textContent) {
       const mockResult = getMockAnalysisForText(textContent, language?.toLowerCase().slice(0, 2) || 'en');
-      if (mockResult && (!apiKey || apiKey.trim() === '')) {
+      if (mockResult && (!apiKey || demoMode)) {
         const resources = getResourcesForCategory(mockResult.category);
         return NextResponse.json({
           analysis: mockResult,
@@ -142,9 +146,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!apiKey) {
-      // Fallback for image upload without an API key
-      if (textContent) {
-        const mockResult = getMockAnalysisForText(textContent);
+      // Demo mode fallback: return eviction sample analysis
+      if (demoMode) {
+        const mockResult = getMockAnalysisForText('eviction', language?.toLowerCase().slice(0, 2) || 'en');
         if (mockResult) {
           const resources = getResourcesForCategory(mockResult.category);
           return NextResponse.json({
@@ -154,10 +158,24 @@ export async function POST(request: NextRequest) {
           });
         }
       }
+
+      if (textContent) {
+        const mockResult = getMockAnalysisForText(textContent, language?.toLowerCase().slice(0, 2) || 'en');
+        if (mockResult) {
+          const resources = getResourcesForCategory(mockResult.category);
+          return NextResponse.json({
+            analysis: mockResult,
+            resources,
+            isMock: true,
+          });
+        }
+      }
+
       return NextResponse.json(
         {
           error:
             'GEMINI_API_KEY is not configured in .env.local. Please add your free key from https://aistudio.google.com/apikey or test one of the 4 sample letters.',
+          isMissingKey: true,
         },
         { status: 500 }
       );
@@ -191,7 +209,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash',
         contents: [
           {
             role: 'user',

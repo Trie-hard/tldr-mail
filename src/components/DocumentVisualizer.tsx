@@ -10,12 +10,11 @@ interface DocumentVisualizerProps {
 
 export function DocumentVisualizer({ letterId, onClose }: DocumentVisualizerProps) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        {/* Header bar */}
-        <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+    <div className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+      <div className="relative bg-[#fffdf9] rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-[#ddd5c8]">
+        <div className="px-4 py-3 bg-[#1a4d3e] text-[#faf8f4] flex items-center justify-between border-b border-[#143d32]">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-blue-400" />
+            <FileText className="w-4 h-4 text-[#c5ddd4]" />
             <span className="text-xs font-bold uppercase tracking-wider">Original Scanned Letter Facsimile</span>
           </div>
           <button
@@ -258,7 +257,7 @@ export function DocumentVisualizer({ letterId, onClose }: DocumentVisualizerProp
           <span>Austin, Texas Community Archive</span>
           <button
             onClick={onClose}
-            className="text-blue-600 hover:text-blue-800 font-bold"
+            className="text-[#1a4d3e] hover:text-[#143d32] font-medium"
           >
             Done Viewing Document
           </button>

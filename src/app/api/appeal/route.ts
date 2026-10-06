@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
       language?: string;
     };
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const headerApiKey = request.headers.get('x-gemini-api-key');
+    const rawApiKey = headerApiKey || (body as { apiKey?: string }).apiKey || process.env.GEMINI_API_KEY;
+    const apiKey = rawApiKey && rawApiKey.trim() !== '' ? rawApiKey.trim() : undefined;
     const langCode = language?.toLowerCase().slice(0, 2) || 'en';
 
     if (!apiKey) {
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash',
         contents: `Based on this official letter the user received, write a formal response/appeal/dispute letter they can send back.\n\nLetter category: ${category}\n\nOriginal letter:\n${letterContext}${langInstruction}\n\nFormat the response as a complete, ready-to-send letter with:\n- Recipient address block\n- Date\n- Subject line\n- Body\n- Signature block with [YOUR NAME] placeholder`,
         config: {
           systemInstruction: APPEAL_SYSTEM_PROMPT,
