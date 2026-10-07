@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { AlertTriangle, Clock, ShieldCheck, HeartHandshake, Info } from 'lucide-react';
+import { AlertTriangle, HeartHandshake, Info } from 'lucide-react';
 import type { LetterAnalysis } from '@/lib/types';
 
 interface TriageHeroProps {

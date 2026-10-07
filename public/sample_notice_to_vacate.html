@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Notice to Vacate — Sample Document for Camera Demo</title>
+  <style>
+    /* CSS Reset & Print Formatting */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    @page {
+      size: letter portrait;
+      margin: 0; /* Handled by container padding */
+    }
+
+    body {
+      background-color: #f1f5f9;
+      font-family: "Times New Roman", Times, Georgia, serif;
+      color: #111827;
+      line-height: 1.35;
+      font-size: 10.5pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Screen-only Toolbar */
+    .screen-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .toolbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-badge {
+      background: #dc2626;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      border: none;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .btn-print {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-print:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.1);
+      color: #f8fafc;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Document Sheet Canvas (Letter Size: 8.5in x 11in) */
+    .document-wrapper {
+      max-width: 8.5in;
+      margin: 24px auto;
+      background: #ffffff;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      padding: 0.55in 0.65in 0.45in 0.65in;
+      position: relative;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    /* Scanner Corner Registration Marks (Helps phone camera & OCR edge detection) */
+    .corner-mark {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: #000000;
+      pointer-events: none;
+    }
+    .top-left {
+      top: 14px;
+      left: 14px;
+      border-top: 2.5px solid #000000;
+      border-left: 2.5px solid #000000;
+    }
+    .top-right {
+      top: 14px;
+      right: 14px;
+      border-top: 2.5px solid #000000;
+      border-right: 2.5px solid #000000;
+    }
+    .bottom-left {
+      bottom: 14px;
+      left: 14px;
+      border-bottom: 2.5px solid #000000;
+      border-left: 2.5px solid #000000;
+    }
+    .bottom-right {
+      bottom: 14px;
+      right: 14px;
+      border-bottom: 2.5px solid #000000;
+      border-right: 2.5px solid #000000;
+    }
+
+    /* Top Letterhead */
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+
+    .org-logo {
+      width: 48px;
+      height: 48px;
+      vertical-align: middle;
+    }
+
+    .org-title {
+      font-size: 15pt;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #0f172a;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .org-subtitle {
+      font-size: 8pt;
+      color: #475569;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .org-address {
+      font-size: 7.5pt;
+      color: #334155;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      margin-top: 3px;
+      line-height: 1.25;
+    }
+
+    .meta-box {
+      text-align: right;
+      vertical-align: top;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .barcode-svg {
+      width: 175px;
+      height: 38px;
+      margin-bottom: 2px;
+    }
+
+    .tracking-code {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: #0f172a;
+    }
+
+    .meta-line {
+      font-size: 8pt;
+      color: #1e293b;
+      margin-top: 2px;
+    }
+
+    /* Urgent Notice Banner */
+    .notice-banner {
+      border: 2px solid #b91c1c;
+      background: #fef2f2;
+      padding: 6px 10px;
+      text-align: center;
+      margin: 10px 0 12px 0;
+      position: relative;
+    }
+
+    .notice-title {
+      font-size: 13.5pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #991b1b;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .notice-subtitle {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      text-transform: uppercase;
+      margin-top: 2px;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .statute-citation {
+      font-size: 8.5pt;
+      font-style: italic;
+      color: #4b5563;
+      margin-top: 1px;
+    }
+
+    /* Addressee and Sender Grid */
+    .address-grid {
+      display: table;
+      width: 100%;
+      margin-bottom: 12px;
+      font-size: 9.5pt;
+    }
+
+    .address-col {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      padding: 6px 10px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+    }
+
+    .address-col:first-child {
+      border-right: none;
+    }
+
+    .field-label {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .field-value {
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+
+    /* Document Body */
+    .formal-statement {
+      text-align: justify;
+      margin-bottom: 10px;
+      font-size: 9.5pt;
+      line-height: 1.38;
+    }
+
+    .formal-statement strong {
+      color: #000000;
+    }
+
+    /* Financial Breakdown Table */
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 12px 0;
+      font-size: 9pt;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .breakdown-table th {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 5px 8px;
+      font-weight: 700;
+      text-align: left;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid #1e293b;
+    }
+
+    .breakdown-table td {
+      padding: 4px 8px;
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+    }
+
+    .breakdown-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .breakdown-table .amount-col {
+      text-align: right;
+      font-family: "Courier New", Courier, monospace;
+      font-weight: 600;
+      width: 110px;
+    }
+
+    .total-row td {
+      background: #fee2e2 !important;
+      color: #991b1b;
+      font-weight: 800;
+      font-size: 10pt;
+      border-top: 2px solid #b91c1c;
+      border-bottom: 2px solid #b91c1c;
+    }
+
+    .total-row .amount-col {
+      font-size: 11pt;
+      font-weight: 900;
+      color: #991b1b;
+    }
+
+    /* Deadline Callout Box */
+    .deadline-callout {
+      border-left: 4px solid #dc2626;
+      background: #fff1f2;
+      padding: 8px 12px;
+      margin: 10px 0 12px 0;
+      font-size: 9pt;
+      line-height: 1.35;
+    }
+
+    .deadline-callout strong {
+      color: #991b1b;
+      text-transform: uppercase;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 9.5pt;
+    }
+
+    /* Legal Consequences Paragraph */
+    .legal-warning {
+      font-size: 8.5pt;
+      color: #1f2937;
+      text-align: justify;
+      margin-bottom: 10px;
+      border: 1px dashed #94a3b8;
+      padding: 6px 10px;
+      background: #fafafa;
+    }
+
+    /* Service Checkboxes & Signatures */
+    .bottom-section {
+      display: table;
+      width: 100%;
+      margin-top: 8px;
+      border-top: 1px solid #94a3b8;
+      padding-top: 8px;
+    }
+
+    .service-proof {
+      display: table-cell;
+      width: 54%;
+      vertical-align: top;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #334155;
+      padding-right: 14px;
+    }
+
+    .service-proof-title {
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #0f172a;
+      margin-bottom: 4px;
+      font-size: 7.5pt;
+    }
+
+    .checkbox-item {
+      margin: 2.5px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .custom-box {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border: 1.5px solid #0f172a;
+      text-align: center;
+      line-height: 9px;
+      font-size: 9px;
+      font-weight: 900;
+      font-family: Arial, sans-serif;
+    }
+
+    .signature-area {
+      display: table-cell;
+      width: 46%;
+      vertical-align: top;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .sig-line {
+      margin-top: 40px;
+      border-top: 1.5px solid #0f172a;
+      padding-top: 4px;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 8pt;
+      color: #0f172a;
+    }
+
+    .script-signature {
+      position: absolute;
+      top: 12px;
+      left: 30px;
+      font-family: "Brush Script MT", "Caveat", "Dancing Script", cursive;
+      font-size: 26pt;
+      color: #1e3a8a;
+      transform: rotate(-3deg);
+      user-select: none;
+    }
+
+    /* Red Rubber Stamp Simulation */
+    .stamp-badge {
+      position: absolute;
+      left: 230px;
+      bottom: 58px;
+      border: 3px dashed #b91c1c;
+      color: #b91c1c;
+      padding: 5px 12px;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-weight: 900;
+      font-size: 9pt;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      transform: rotate(-7deg);
+      opacity: 0.88;
+      text-align: center;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.3);
+      user-select: none;
+      pointer-events: none;
+      background: rgba(254, 242, 242, 0.55);
+      z-index: 10;
+    }
+
+    .stamp-badge small {
+      display: block;
+      font-size: 7pt;
+      letter-spacing: 1px;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    /* Notary/Official Seal Graphic */
+    .official-seal {
+      position: absolute;
+      bottom: 45px;
+      right: 45px;
+      width: 82px;
+      height: 82px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* Print Specific Tweaks */
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      .screen-toolbar {
+        display: none !important;
+      }
+      .document-wrapper {
+        margin: 0 !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+      }
+      .page {
+        padding: 0.4in 0.55in !important;
+        min-height: 100vh !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen-Only Toolbar for Quick Printing / Saving -->
+  <div class="screen-toolbar">
+    <div class="toolbar-title">
+      <span class="toolbar-badge">Demo Prop</span>
+      <span>TL;DR Mail — Official Camera Capture Sample Notice</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-print" onclick="window.print()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+          <path d="M6 14h12v8H6z"/>
+        </svg>
+        Print / Save as PDF (Ctrl+P)
+      </button>
+      <a class="btn btn-outline" href="printable_sample_notice.pdf" target="_blank" download>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Download Prebuilt PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Document Sheet -->
+  <div class="document-wrapper">
+    <div class="page">
+      
+      <!-- 4 Corner Alignment Registration Marks (Optimized for Camera Edge-Detect / Contour OCR) -->
+      <div class="corner-mark top-left"></div>
+      <div class="corner-mark top-right"></div>
+      <div class="corner-mark bottom-left"></div>
+      <div class="corner-mark bottom-right"></div>
+
+      <!-- Realistic Red Hand-Delivered Legal Stamp -->
+      <div class="stamp-badge">
+        SERVED &amp; POSTED
+        <small>HAND DELIVERY • SEP 28, 2026</small>
+        <small>TEX. PROP. CODE § 24.005</small>
+      </div>
+
+      <!-- Watermark Seal SVG -->
+      <svg class="official-seal" viewBox="0 0 100 100" fill="none" stroke="#0f172a" stroke-width="1.5">
+        <circle cx="50" cy="50" r="46" stroke-dasharray="3 2" />
+        <circle cx="50" cy="50" r="40" />
+        <path d="M50 15 L53 25 L63 25 L55 31 L58 41 L50 35 L42 41 L45 31 L37 25 L47 25 Z" fill="#0f172a" />
+        <text x="50" y="62" font-size="7" font-weight="bold" text-anchor="middle" font-family="sans-serif">GREENFIELD</text>
+        <text x="50" y="70" font-size="5" text-anchor="middle" font-family="sans-serif">OFFICIAL PROPERTY SEAL</text>
+        <text x="50" y="77" font-size="4" text-anchor="middle" font-family="sans-serif">AUSTIN • TRAVIS COUNTY</text>
+      </svg>
+
+      <!-- Formal Letterhead -->
+      <table class="header-table">
+        <tr>
+          <td style="width: 56px; vertical-align: top;">
+            <!-- Property Management SVG Crest Logo -->
+            <svg class="org-logo" viewBox="0 0 48 48" fill="none">
+              <rect width="48" height="48" rx="6" fill="#0f172a"/>
+              <path d="M12 36V22L24 13L36 22V36H28V26H20V36H12Z" fill="#f8fafc"/>
+              <path d="M22 17L24 15.5L26 17V19H22V17Z" fill="#38bdf8"/>
+              <circle cx="24" cy="30" r="1.5" fill="#38bdf8"/>
+            </svg>
+          </td>
+          <td style="vertical-align: top; padding-left: 10px;">
+            <div class="org-title">Greenfield Property Management</div>
+            <div class="org-subtitle">Managing Agent for Riverside Apartments LLC</div>
+            <div class="org-address">
+              1200 Congress Avenue, Suite 400 • Austin, Texas 78701<br>
+              Direct: (512) 555-0147 • Fax: (512) 555-0148 • Email: legal@greenfieldmgmt-atx.com
+            </div>
+          </td>
+          <td class="meta-box">
+            <!-- Simulated Code 128 Barcode (High Contrast for Scanner Recognition) -->
+            <svg class="barcode-svg" viewBox="0 0 200 45" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="200" height="45" fill="#ffffff"/>
+              <!-- Code 128 Bars -->
+              <rect x="5" y="4" width="3" height="30" fill="#000"/>
+              <rect x="10" y="4" width="2" height="30" fill="#000"/>
+              <rect x="15" y="4" width="4" height="30" fill="#000"/>
+              <rect x="22" y="4" width="2" height="30" fill="#000"/>
+              <rect x="27" y="4" width="5" height="30" fill="#000"/>
+              <rect x="35" y="4" width="2" height="30" fill="#000"/>
+              <rect x="40" y="4" width="3" height="30" fill="#000"/>
+              <rect x="46" y="4" width="5" height="30" fill="#000"/>
+              <rect x="54" y="4" width="2" height="30" fill="#000"/>
+              <rect x="59" y="4" width="4" height="30" fill="#000"/>
+              <rect x="66" y="4" width="3" height="30" fill="#000"/>
+              <rect x="72" y="4" width="5" height="30" fill="#000"/>
+              <rect x="80" y="4" width="2" height="30" fill="#000"/>
+              <rect x="85" y="4" width="3" height="30" fill="#000"/>
+              <rect x="91" y="4" width="6" height="30" fill="#000"/>
+              <rect x="100" y="4" width="2" height="30" fill="#000"/>
+              <rect x="105" y="4" width="4" height="30" fill="#000"/>
+              <rect x="112" y="4" width="3" height="30" fill="#000"/>
+              <rect x="118" y="4" width="5" height="30" fill="#000"/>
+              <rect x="126" y="4" width="2" height="30" fill="#000"/>
+              <rect x="131" y="4" width="4" height="30" fill="#000"/>
+              <rect x="138" y="4" width="3" height="30" fill="#000"/>
+              <rect x="144" y="4" width="6" height="30" fill="#000"/>
+              <rect x="153" y="4" width="2" height="30" fill="#000"/>
+              <rect x="158" y="4" width="3" height="30" fill="#000"/>
+              <rect x="164" y="4" width="5" height="30" fill="#000"/>
+              <rect x="172" y="4" width="3" height="30" fill="#000"/>
+              <rect x="178" y="4" width="4" height="30" fill="#000"/>
+              <rect x="185" y="4" width="2" height="30" fill="#000"/>
+              <rect x="190" y="4" width="4" height="30" fill="#000"/>
+              <text x="100" y="41" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle" fill="#000">7021 0350 0001 8492 1042</text>
+            </svg>
+            <div class="meta-line"><strong>NOTICE DATE:</strong> September 28, 2026</div>
+            <div class="meta-line"><strong>REF CASE:</strong> TRV-2026-0928-EV4B</div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Prominent Red Warning Header -->
+      <div class="notice-banner">
+        <div class="notice-title">Three (3) Day Notice to Vacate Premises</div>
+        <div class="notice-subtitle">Demand for Immediate Possession &amp; Notice of Default</div>
+        <div class="statute-citation">Issued Pursuant to Texas Property Code Ann. § 24.005 &amp; Travis County Local Rules</div>
+      </div>
+
+      <!-- Addressee Information Table -->
+      <div class="address-grid">
+        <div class="address-col">
+          <div class="field-label">Tenant(s) / Current Occupant(s):</div>
+          <div class="field-value">
+            CARLOS RAMIREZ<br>
+            AND ALL CURRENT RESIDENTS<br>
+            Apartment 4B, 2847 Riverside Drive<br>
+            Austin, TX 78741
+          </div>
+        </div>
+        <div class="address-col">
+          <div class="field-label">Leased Premises &amp; Jurisdiction:</div>
+          <div class="field-value">
+            <strong>Premises:</strong> Apt 4B, Riverside Apartments<br>
+            <strong>County:</strong> Travis County, State of Texas<br>
+            <strong>Court of Venue:</strong> Justice of the Peace Court,<br>
+            Precinct 3, Travis County, Texas
+          </div>
+        </div>
+      </div>
+
+      <!-- Formal Body Statement -->
+      <p class="formal-statement">
+        <strong>DEAR TENANT(S):</strong> PLEASE TAKE FORMAL WRITTEN NOTICE that under the terms and conditions of your Residential Lease Agreement and pursuant to <strong>Texas Property Code § 24.005</strong>, you are hereby given statutory notice that you are required to <strong>VACATE AND SURRENDER FULL POSSESSION</strong> of the above-described premises within <strong>THREE (3) CALENDAR DAYS (72 HOURS)</strong> following the delivery and service of this document.
+      </p>
+
+      <p class="formal-statement">
+        <strong>REASON FOR TERMINATION AND NOTICE:</strong> You have defaulted under your lease covenants by failing to remit the total monthly rental installment due for the billing period of <strong>September 2026</strong>. As of the date of issuance of this notice, your account remains severely delinquent as detailed in the itemized statement below:
+      </p>
+
+      <!-- Structured Statement Breakdown Table -->
+      <table class="breakdown-table">
+        <thead>
+          <tr>
+            <th style="width: 50%;">Description of Assessment</th>
+            <th style="width: 25%;">Assessment Date</th>
+            <th class="amount-col">Amount Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Base Unpaid Rent — Month of September 2026</td>
+            <td>September 1, 2026</td>
+            <td class="amount-col">$1,450.00</td>
+          </tr>
+          <tr>
+            <td>Contractual Late Fee Assessment (Lease Clause §4)</td>
+            <td>September 5, 2026</td>
+            <td class="amount-col">$125.00</td>
+          </tr>
+          <tr>
+            <td>Statutory Notice Processing &amp; Administrative Service Fee</td>
+            <td>September 28, 2026</td>
+            <td class="amount-col">$50.00</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="2"><strong>TOTAL DELINQUENT AMOUNT REQUIRED TO CURE:</strong></td>
+            <td class="amount-col">$1,625.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Strict Cure Deadline Callout -->
+      <div class="deadline-callout">
+        <div><strong>STRICT STATUTORY DEADLINE: OCTOBER 1, 2026 AT 5:00 PM CST</strong></div>
+        <div>
+          You may cure this default only by remitting the full balance of <strong>$1,625.00</strong> in certified funds (Cashier’s Check or Certified Bank Money Order made payable to <em>Riverside Apartments Management LLC</em>) directly to the leasing office at 1200 Congress Avenue, Suite 400, Austin, TX 78701 prior to the expiration of the deadline. <u>Personal checks and partial payments will be rejected.</u>
+        </div>
+      </div>
+
+      <!-- Legal Consequences of Inaction Box -->
+      <div class="legal-warning">
+        <strong>LEGAL CONSEQUENCES OF NON-COMPLIANCE:</strong> If you fail to vacate the premises or fail to tender the total delinquent balance of $1,625.00 on or before October 1, 2026, Landlord will immediately file a formal <strong>FORCIBLE DETAINER LAWSUIT (EVICTION COMPLAINT)</strong> in the <strong>Justice of the Peace Court, Precinct 3, Travis County, Texas</strong>. In addition to a judgment awarding legal possession of the rental unit, Landlord will seek monetary judgment against you for all past-due rent, future accelerated damages, statutory court costs, and reasonable attorney fees under Tex. Prop. Code § 24.006. A court judgment will permanently affect your credit rating and public tenant screening history.
+      </div>
+
+      <!-- Bottom Service Certification & Signatures -->
+      <div class="bottom-section">
+        <!-- Certificate of Service Box -->
+        <div class="service-proof">
+          <div class="service-proof-title">Affidavit / Certificate of Service</div>
+          <div>I hereby certify that on <strong>September 28, 2026 at 9:15 AM</strong>, a true and correct copy of this Statutory Notice to Vacate was served upon the tenant by:</div>
+          <div class="checkbox-item" style="margin-top: 4px;">
+            <span class="custom-box">X</span>
+            <span><strong>Hand Delivery:</strong> Delivered directly to resident or adult occupant.</span>
+          </div>
+          <div class="checkbox-item">
+            <span class="custom-box"></span>
+            <span><strong>Premises Posting:</strong> Affixed securely to inside of main entry door.</span>
+          </div>
+          <div class="checkbox-item">
+            <span class="custom-box"></span>
+            <span><strong>Certified Mail:</strong> Deposited in U.S. Postal Service, Return Receipt Req.</span>
+          </div>
+          <div style="margin-top: 4px; font-style: italic;">
+            Server Signature: <u>&nbsp;M. Gutierrez&nbsp;</u> &bull; Process Agent #TX-9041
+          </div>
+        </div>
+
+        <!-- Management Signatory Box -->
+        <div class="signature-area">
+          <div class="field-label">Authorized Management Agent:</div>
+          <div class="script-signature">Rachel Torres</div>
+          <div class="sig-line">
+            <strong>Rachel Torres</strong>, CAM<br>
+            Senior Managing Director<br>
+            Greenfield Property Management, LLC<br>
+            Representative for Riverside Apartments, LLC
+          </div>
+        </div>
+      </div>
+
+      <!-- Micro-print footer for document authenticity -->
+      <div style="margin-top: 8px; border-top: 0.5px solid #cbd5e1; padding-top: 3px; display: flex; justify-content: space-between; font-family: -apple-system, sans-serif; font-size: 6.5pt; color: #64748b;">
+        <span>DOC ID: TX-ATX-TRV-2026-EV-0402-ORIGINAL</span>
+        <span>TRAVIS COUNTY PRECINCT 3 EVIDENTIARY EXHIBIT</span>
+        <span>FORM COMPLIANT WITH TPC CH. 24 &bull; PAGE 1 OF 1</span>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

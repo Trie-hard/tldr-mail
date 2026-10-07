@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "node ./node_modules/next/dist/bin/next dev",
+    "dev:3001": "node ./node_modules/next/dist/bin/next dev -p 3001",
     "build": "node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
-    "lint": "eslint"
+    "start:3001": "node ./node_modules/next/dist/bin/next start -p 3001",
+    "lint": "node ./node_modules/eslint/bin/eslint.js ."
   },
   "dependencies": {
     "@google/genai": "^2.27.0",

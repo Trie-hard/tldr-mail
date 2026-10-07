@@ -41,21 +41,40 @@ export async function POST(request: NextRequest) {
         ? `\nRespond in ${language}.`
         : '';
 
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: `The user received this letter:\n\n${letterContext}\n\nTheir question: ${question}${langInstruction}`,
-        config: {
-          systemInstruction: CHAT_SYSTEM_PROMPT,
-        },
-      });
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    let lastGenError: unknown;
+    let answerText: string | null = null;
 
-      return NextResponse.json({ answer: response.text });
-    } catch (genError) {
-      console.warn('Gemini chat failed, using fallback:', genError);
-      const mockAnswer = getMockChatResponse(question, letterContext || '');
+    for (const modelName of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: `The user received this letter:\n\n${letterContext}\n\nTheir question: ${question}${langInstruction}`,
+          config: {
+            systemInstruction: CHAT_SYSTEM_PROMPT,
+          },
+        });
+
+        if (response.text) {
+          answerText = response.text;
+          break;
+        }
+      } catch (err) {
+        lastGenError = err;
+        console.warn(`Gemini model ${modelName} failed, attempting next available model:`, err instanceof Error ? err.message : err);
+      }
+    }
+
+    if (answerText) {
+      return NextResponse.json({ answer: answerText });
+    }
+
+    const mockAnswer = getMockChatResponse(question, letterContext || '');
+    if (mockAnswer) {
       return NextResponse.json({ answer: mockAnswer, isMock: true });
     }
+
+    throw lastGenError || new Error('No response received from Gemini model.');
   } catch (error) {
     console.error('Chat error:', error);
     const message = error instanceof Error ? error.message : 'An unexpected error occurred.';

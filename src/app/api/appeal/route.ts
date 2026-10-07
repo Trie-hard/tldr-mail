@@ -49,24 +49,40 @@ export async function POST(request: NextRequest) {
         ? `\nWrite the appeal letter in ${language}.`
         : '';
 
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: `Based on this official letter the user received, write a formal response/appeal/dispute letter they can send back.\n\nLetter category: ${category}\n\nOriginal letter:\n${letterContext}${langInstruction}\n\nFormat the response as a complete, ready-to-send letter with:\n- Recipient address block\n- Date\n- Subject line\n- Body\n- Signature block with [YOUR NAME] placeholder`,
-        config: {
-          systemInstruction: APPEAL_SYSTEM_PROMPT,
-        },
-      });
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    let lastGenError: unknown;
+    let appealLetterText: string | null = null;
 
-      return NextResponse.json({ appealLetter: response.text });
-    } catch (genError) {
-      console.warn('Gemini appeal generation failed, trying mock fallback:', genError);
-      const mockAppeal = getMockAppealForCategory(category, langCode);
-      if (mockAppeal) {
-        return NextResponse.json({ appealLetter: mockAppeal, isMock: true });
+    for (const modelName of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: `Based on this official letter the user received, write a formal response/appeal/dispute letter they can send back.\n\nLetter category: ${category}\n\nOriginal letter:\n${letterContext}${langInstruction}\n\nFormat the response as a complete, ready-to-send letter with:\n- Recipient address block\n- Date\n- Subject line\n- Body\n- Signature block with [YOUR NAME] placeholder`,
+          config: {
+            systemInstruction: APPEAL_SYSTEM_PROMPT,
+          },
+        });
+
+        if (response.text) {
+          appealLetterText = response.text;
+          break;
+        }
+      } catch (err) {
+        lastGenError = err;
+        console.warn(`Gemini model ${modelName} failed, attempting next available model:`, err instanceof Error ? err.message : err);
       }
-      throw genError;
     }
+
+    if (appealLetterText) {
+      return NextResponse.json({ appealLetter: appealLetterText });
+    }
+
+    const mockAppeal = getMockAppealForCategory(category, langCode);
+    if (mockAppeal) {
+      return NextResponse.json({ appealLetter: mockAppeal, isMock: true });
+    }
+
+    throw lastGenError || new Error('No response received from Gemini model.');
   } catch (error) {
     console.error('Appeal letter error:', error);
     const message = error instanceof Error ? error.message : 'An unexpected error occurred.';

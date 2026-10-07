@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Upload, X, Lightbulb, FileText } from 'lucide-react';
+import { Camera, Upload, X, Lightbulb } from 'lucide-react';
 import { useRef } from 'react';
 
 interface CameraViewfinderProps {

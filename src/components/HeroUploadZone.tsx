@@ -1,6 +1,6 @@
 'use client';
 
-import { Upload, Camera, FileText, Shield, Sparkles, Scale, Heart } from 'lucide-react';
+import { Upload, Camera, Shield, Sparkles, Scale } from 'lucide-react';
 import { SAMPLE_LETTERS, SampleLetter } from '@/lib/sample-letters';
 
 interface HeroUploadZoneProps {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Gavel, Copy, Check, Printer, FileCheck, Share2, Sparkles, Loader2 } from 'lucide-react';
+import { Gavel, Copy, Check, Printer, FileCheck, Sparkles, Loader2 } from 'lucide-react';
 import type { LetterAnalysis } from '@/lib/types';
 
 interface DisputeStudioProps {

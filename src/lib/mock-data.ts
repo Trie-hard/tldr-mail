@@ -1,5 +1,4 @@
-import { LetterAnalysis, LocalResource, AppealLetter } from './types';
-import { getResourcesForCategory } from './resources';
+import { LetterAnalysis } from './types';
 
 export interface SampleLetterMock {
   id: string;

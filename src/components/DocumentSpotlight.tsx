@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Sparkles, BookOpen, ExternalLink, HelpCircle, Eye } from 'lucide-react';
+import { Sparkles, BookOpen, HelpCircle, Eye } from 'lucide-react';
 import type { LetterAnalysis } from '@/lib/types';
 import { getCivicKnowledge, JargonDefinition } from '@/lib/civic-knowledge';
 

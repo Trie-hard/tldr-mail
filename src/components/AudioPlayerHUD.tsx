@@ -1,6 +1,6 @@
 'use client';
 
-import { Volume2, VolumeX, Play, Pause, RotateCcw, FastForward } from 'lucide-react';
+import { Volume2, Play, Pause, RotateCcw } from 'lucide-react';
 
 interface AudioPlayerHUDProps {
   isSpeaking: boolean;
@@ -52,7 +52,7 @@ export function AudioPlayerHUD({
       <div className="hidden sm:block border-l border-white/20 pl-3">
         <div className="flex items-center gap-1 text-[11px] font-bold text-slate-200">
           <Volume2 className={`w-3.5 h-3.5 ${isSpeaking ? 'text-amber-400 animate-pulse' : ''}`} />
-          <span>{isSpeaking ? 'Narrating in 6th Grade' : 'Listen Aloud'}</span>
+          <span>{isSpeaking ? `Narrating (${language})` : `Listen Aloud (${language})`}</span>
         </div>
         <span className="text-[9px] text-slate-400 block">
           Speech pace adjusted for seniors &amp; ESL

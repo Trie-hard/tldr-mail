@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Austin Energy Final Notice — Sample Utility Shutoff Notice for Camera Demo</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    @page {
+      size: letter portrait;
+      margin: 0;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #0f172a;
+      line-height: 1.35;
+      font-size: 10pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .screen-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .toolbar-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-badge {
+      background: #ea580c;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-print {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .btn-print:hover {
+      background: #0369a1;
+    }
+
+    .document-wrapper {
+      max-width: 8.5in;
+      margin: 24px auto;
+      background: #ffffff;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      padding: 0.55in 0.65in 0.45in 0.65in;
+      position: relative;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    /* Scanner Corner Marks */
+    .corner-mark {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: #000000;
+      pointer-events: none;
+    }
+    .top-left { top: 14px; left: 14px; border-top: 2.5px solid #000; border-left: 2.5px solid #000; }
+    .top-right { top: 14px; right: 14px; border-top: 2.5px solid #000; border-right: 2.5px solid #000; }
+    .bottom-left { bottom: 14px; left: 14px; border-bottom: 2.5px solid #000; border-left: 2.5px solid #000; }
+    .bottom-right { bottom: 14px; right: 14px; border-bottom: 2.5px solid #000; border-right: 2.5px solid #000; }
+
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-bottom: 3px solid #0284c7;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .brand-title {
+      font-size: 18pt;
+      font-weight: 900;
+      color: #0369a1;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      font-size: 8.5pt;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .alert-banner {
+      background: #fff7ed;
+      border: 2px solid #ea580c;
+      padding: 10px 14px;
+      margin: 12px 0 14px 0;
+      text-align: center;
+    }
+
+    .alert-heading {
+      font-size: 13pt;
+      font-weight: 900;
+      color: #c2410c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .alert-sub {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #7c2d12;
+      margin-top: 2px;
+    }
+
+    .account-meta-grid {
+      display: table;
+      width: 100%;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 14px;
+    }
+
+    .meta-cell {
+      display: table-cell;
+      padding: 8px 12px;
+      vertical-align: top;
+      font-size: 9pt;
+      border-right: 1px solid #cbd5e1;
+    }
+
+    .meta-cell:last-child {
+      border-right: none;
+    }
+
+    .meta-label {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+
+    .meta-val {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9pt;
+    }
+
+    .summary-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+
+    .summary-table td {
+      padding: 5px 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .summary-table .amount {
+      text-align: right;
+      font-family: monospace;
+      font-size: 9.5pt;
+      font-weight: 600;
+    }
+
+    .summary-table .total-due {
+      background: #ffedd5;
+      color: #9a3412;
+      font-weight: 900;
+      font-size: 11pt;
+      border-top: 2px solid #ea580c;
+      border-bottom: 2px solid #ea580c;
+    }
+
+    .action-steps-box {
+      border: 1.5px solid #0284c7;
+      background: #f0f9ff;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 9pt;
+    }
+
+    .action-steps-box h4 {
+      color: #0369a1;
+      font-size: 9.5pt;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .action-steps-box ol {
+      padding-left: 20px;
+      line-height: 1.45;
+    }
+
+    .assistance-box {
+      background: #fefce8;
+      border-left: 4px solid #eab308;
+      padding: 8px 12px;
+      font-size: 8.5pt;
+      margin-bottom: 12px;
+      color: #713f12;
+    }
+
+    @media print {
+      body { background: #fff !important; }
+      .screen-toolbar { display: none !important; }
+      .document-wrapper { margin: 0 !important; box-shadow: none !important; max-width: 100% !important; }
+      .page { padding: 0.45in 0.6in !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-toolbar">
+    <div class="toolbar-title">
+      <span class="toolbar-badge">Demo Prop #2</span>
+      <span>Austin Energy — Final Disconnection Notice</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-print" onclick="window.print()">Print / Save as PDF (Ctrl+P)</button>
+    </div>
+  </div>
+
+  <div class="document-wrapper">
+    <div class="page">
+      <div class="corner-mark top-left"></div>
+      <div class="corner-mark top-right"></div>
+      <div class="corner-mark bottom-left"></div>
+      <div class="corner-mark bottom-right"></div>
+
+      <!-- Letterhead -->
+      <table class="header-table">
+        <tr>
+          <td style="width: 50%;">
+            <div class="brand-title">AUSTIN ENERGY</div>
+            <div class="brand-sub">City of Austin Municipal Electric Utility</div>
+            <div style="font-size: 7.5pt; color: #475569; margin-top: 3px;">
+              Customer Care Center • P.O. Box 2267 • Austin, TX 78768-2267<br>
+              Phone: (512) 494-9400 • Web: austinenergy.com
+            </div>
+          </td>
+          <td style="width: 50%; text-align: right; vertical-align: top;">
+            <svg style="width: 160px; height: 34px;" viewBox="0 0 200 40">
+              <rect width="200" height="40" fill="#fff"/>
+              <rect x="5" y="4" width="3" height="26" fill="#000"/>
+              <rect x="11" y="4" width="2" height="26" fill="#000"/>
+              <rect x="16" y="4" width="5" height="26" fill="#000"/>
+              <rect x="24" y="4" width="2" height="26" fill="#000"/>
+              <rect x="29" y="4" width="4" height="26" fill="#000"/>
+              <rect x="36" y="4" width="3" height="26" fill="#000"/>
+              <rect x="42" y="4" width="5" height="26" fill="#000"/>
+              <rect x="50" y="4" width="2" height="26" fill="#000"/>
+              <rect x="55" y="4" width="4" height="26" fill="#000"/>
+              <rect x="62" y="4" width="6" height="26" fill="#000"/>
+              <rect x="71" y="4" width="2" height="26" fill="#000"/>
+              <rect x="76" y="4" width="3" height="26" fill="#000"/>
+              <rect x="82" y="4" width="5" height="26" fill="#000"/>
+              <rect x="90" y="4" width="3" height="26" fill="#000"/>
+              <rect x="96" y="4" width="4" height="26" fill="#000"/>
+              <rect x="103" y="4" width="2" height="26" fill="#000"/>
+              <rect x="108" y="4" width="5" height="26" fill="#000"/>
+              <rect x="116" y="4" width="3" height="26" fill="#000"/>
+              <rect x="122" y="4" width="4" height="26" fill="#000"/>
+              <rect x="129" y="4" width="2" height="26" fill="#000"/>
+              <rect x="134" y="4" width="5" height="26" fill="#000"/>
+              <rect x="142" y="4" width="3" height="26" fill="#000"/>
+              <rect x="148" y="4" width="4" height="26" fill="#000"/>
+              <rect x="155" y="4" width="2" height="26" fill="#000"/>
+              <rect x="160" y="4" width="6" height="26" fill="#000"/>
+              <rect x="169" y="4" width="2" height="26" fill="#000"/>
+              <rect x="174" y="4" width="4" height="26" fill="#000"/>
+              <rect x="181" y="4" width="3" height="26" fill="#000"/>
+              <rect x="187" y="4" width="5" height="26" fill="#000"/>
+              <text x="100" y="37" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">AE-7829-4451-03</text>
+            </svg>
+            <div style="font-size: 8pt; font-weight: 700; color: #1e293b;">NOTICE DATE: September 30, 2026</div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Banner -->
+      <div class="alert-banner">
+        <div class="alert-heading">FINAL NOTICE &bull; DISCONNECTION OF ELECTRIC SERVICE</div>
+        <div class="alert-sub">SERVICE TERMINATION SCHEDULED FOR: OCTOBER 7, 2026</div>
+      </div>
+
+      <!-- Account Metadata -->
+      <div class="account-meta-grid">
+        <div class="meta-cell">
+          <div class="meta-label">Account Number</div>
+          <div class="meta-val">AE-7829-4451-03</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">Customer Name</div>
+          <div class="meta-val">VALUED CUSTOMER</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">Service Address</div>
+          <div class="meta-val">5612 Manor Road, Apt 12, Austin, TX 78723</div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">Disconnection Date</div>
+          <div class="meta-val" style="color: #c2410c;">October 7, 2026</div>
+        </div>
+      </div>
+
+      <p style="margin-bottom: 10px; font-size: 9.5pt; line-height: 1.4;">
+        <strong>DEAR CUSTOMER:</strong> Despite previous reminder notices, your municipal electric utility account remains seriously delinquent. Unless payment is received in full before <strong>October 7, 2026</strong>, your electric utility service will be <strong>DISCONNECTED</strong> without further notice.
+      </p>
+
+      <!-- Financial Statement -->
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Billing Item Description</th>
+            <th class="amount">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Previous Balance (Prior Cycle)</td>
+            <td class="amount">$187.43</td>
+          </tr>
+          <tr>
+            <td>Payment Received (August 15, 2026) &mdash; Thank you</td>
+            <td class="amount" style="color: #15803d;">-$50.00</td>
+          </tr>
+          <tr>
+            <td>Current Electric Energy Charges (September 2026)</td>
+            <td class="amount">$142.67</td>
+          </tr>
+          <tr>
+            <td>Delinquent Account Late Payment Fee</td>
+            <td class="amount">$15.00</td>
+          </tr>
+          <tr>
+            <td>Disconnection / Reconnection Administrative Charge</td>
+            <td class="amount">$45.00</td>
+          </tr>
+          <tr class="total-due">
+            <td><strong>TOTAL AMOUNT DUE TO PREVENT SHUTOFF:</strong></td>
+            <td class="amount"><strong>$340.10</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Steps to Avoid Disconnection -->
+      <div class="action-steps-box">
+        <h4>How to Avoid Disconnection of Power:</h4>
+        <ol>
+          <li><strong>Pay $340.10 immediately</strong> online at <code>austinenergy.com/ae/pay</code> or by automated phone system at (512) 494-9400.</li>
+          <li><strong>Request a Payment Arrangement:</strong> Call customer service before October 7 to establish a deferred payment agreement.</li>
+          <li><strong>Pay in Person:</strong> Austin Energy Customer Care Center, 721 Barton Springs Road, Austin, TX 78704 (Mon-Fri 8am-5pm).</li>
+        </ol>
+      </div>
+
+      <!-- Assistance & Critical Care Status -->
+      <div class="assistance-box">
+        <strong>EMERGENCY BILL ASSISTANCE:</strong> You may qualify for the City of Austin Customer Assistance Program (CAP) or the Plus-1 emergency fund. Call (512) 494-9400.<br>
+        <strong>CRITICAL MEDICAL CARE:</strong> If someone in your residence uses electrically operated life-support medical equipment, contact us immediately to register for critical care priority status.
+      </div>
+
+      <div style="font-size: 8pt; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 6px; margin-top: 14px; text-align: center;">
+        Austin Energy &bull; City of Austin Municipal Government &bull; Form AE-DISCON-2026-V2 &bull; Page 1 of 1
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

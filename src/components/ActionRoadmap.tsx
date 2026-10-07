@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Circle, ListChecks, Calendar, PhoneCall, Copy, Check } from 'lucide-react';
-import type { LetterAnalysis, ActionStep } from '@/lib/types';
+import { CheckCircle2, Circle, ListChecks, PhoneCall, Copy, Check } from 'lucide-react';
+import type { LetterAnalysis } from '@/lib/types';
 import { getCivicKnowledge } from '@/lib/civic-knowledge';
 
 interface ActionRoadmapProps {

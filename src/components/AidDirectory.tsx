@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, ExternalLink, MapPin, Clock, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { Phone, ExternalLink, MapPin, Clock, HeartHandshake } from 'lucide-react';
 import type { LocalResource } from '@/lib/types';
 
 interface AidDirectoryProps {

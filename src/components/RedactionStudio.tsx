@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
-import { Eraser, Sparkles, ArrowRight, ShieldCheck, Undo2, X } from 'lucide-react';
+import { Eraser, Sparkles, ArrowRight, ShieldCheck, X } from 'lucide-react';
 
 interface RedactionStudioProps {
   imageSrc: string;
@@ -155,6 +155,13 @@ export function RedactionStudio({
           >
             <Eraser className="w-3.5 h-3.5" />
             Clear
+          </button>
+          <button
+            type="button"
+            onClick={() => setBrushSize((prev) => (prev === 'normal' ? 'large' : 'normal'))}
+            className="text-xs font-semibold px-2.5 py-1.5 bg-paper hover:bg-paper-elevated text-ink-muted rounded-lg transition-colors"
+          >
+            Brush: {brushSize === 'normal' ? 'Normal' : 'Wide'}
           </button>
         </div>
 

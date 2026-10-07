@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   ListChecks,
-  Scale,
   Gavel,
   HeartHandshake,
   MessageCircle,
@@ -13,7 +12,6 @@ import {
   AlertTriangle,
   Key,
   X,
-  Sparkles,
 } from 'lucide-react';
 
 import { HeaderNav } from '@/components/HeaderNav';
@@ -58,7 +56,6 @@ export default function Home() {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [customApiKey, setCustomApiKey] = useState<string>('');
   const [tempKeyInput, setTempKeyInput] = useState<string>('');
-  const [lastImageBase64, setLastImageBase64] = useState<string | null>(null);
 
   // Redaction Canvas state
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
@@ -86,8 +83,10 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('tldr_gemini_api_key');
       if (saved) {
-        setCustomApiKey(saved);
-        setTempKeyInput(saved);
+        queueMicrotask(() => {
+          setCustomApiKey(saved);
+          setTempKeyInput(saved);
+        });
       }
     }
   }, []);
@@ -109,7 +108,6 @@ export default function Home() {
     async (imageBase64: string, mimeType: string, targetLang?: SupportedLanguage, explicitKey?: string) => {
       setStatus('analyzing');
       setError(null);
-      setLastImageBase64(imageBase64);
       const activeLang = targetLang || language;
       const keyToUse = explicitKey !== undefined ? explicitKey : customApiKey;
 
@@ -182,17 +180,26 @@ export default function Home() {
     }
   };
 
-  const handleFileProcess = useCallback((file: File) => {
-    setIsCameraOpen(false);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setRawImageSrc(dataUrl);
-      setRawImageMime(file.type || 'image/jpeg');
-      setStatus('redacting');
-    };
-    reader.readAsDataURL(file);
-  }, []);
+  const handleFileProcess = useCallback(
+    (file: File) => {
+      setIsCameraOpen(false);
+      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        if (isPdf) {
+          const base64 = dataUrl.split(',')[1];
+          analyzeImage(base64, 'application/pdf');
+        } else {
+          setRawImageSrc(dataUrl);
+          setRawImageMime(file.type || 'image/jpeg');
+          setStatus('redacting');
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [analyzeImage]
+  );
 
   const handleSampleSelect = useCallback(
     (sample: SampleLetter) => {

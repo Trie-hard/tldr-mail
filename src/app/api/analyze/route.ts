@@ -207,49 +207,59 @@ export async function POST(request: NextRequest) {
       parts.push({ text: `\n\n--- LETTER CONTENT ---\n${textContent}\n--- END OF LETTER ---` });
     }
 
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: [
-          {
-            role: 'user',
-            parts,
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    let lastGenError: unknown;
+    let analysisResult = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: [
+            {
+              role: 'user',
+              parts,
+            },
+          ],
+          config: {
+            systemInstruction: SYSTEM_PROMPT,
+            responseMimeType: 'application/json',
+            responseJsonSchema: ANALYSIS_SCHEMA,
           },
-        ],
-        config: {
-          systemInstruction: SYSTEM_PROMPT,
-          responseMimeType: 'application/json',
-          responseJsonSchema: ANALYSIS_SCHEMA,
-        },
-      });
+        });
 
-      const analysisText = response.text;
-      if (!analysisText) {
-        throw new Error('No response received from Gemini model.');
+        const analysisText = response.text;
+        if (analysisText) {
+          analysisResult = JSON.parse(analysisText);
+          break;
+        }
+      } catch (err) {
+        lastGenError = err;
+        console.warn(`Gemini model ${modelName} failed, attempting next available model:`, err instanceof Error ? err.message : err);
       }
+    }
 
-      const analysis = JSON.parse(analysisText);
-      const resources = getResourcesForCategory(analysis.category);
-
+    if (analysisResult) {
+      const resources = getResourcesForCategory(analysisResult.category);
       return NextResponse.json({
-        analysis,
+        analysis: analysisResult,
         resources,
       });
-    } catch (genError) {
-      console.warn('Gemini generation failed, checking mock fallback:', genError);
-      if (textContent) {
-        const mockFallback = getMockAnalysisForText(textContent);
-        if (mockFallback) {
-          const resources = getResourcesForCategory(mockFallback.category);
-          return NextResponse.json({
-            analysis: mockFallback,
-            resources,
-            isMock: true,
-          });
-        }
-      }
-      throw genError;
     }
+
+    if (textContent) {
+      const mockFallback = getMockAnalysisForText(textContent);
+      if (mockFallback) {
+        const resources = getResourcesForCategory(mockFallback.category);
+        return NextResponse.json({
+          analysis: mockFallback,
+          resources,
+          isMock: true,
+        });
+      }
+    }
+
+    throw lastGenError || new Error('No response received from Gemini model.');
   } catch (error) {
     console.error('Analysis error:', error);
     const message = error instanceof Error ? error.message : 'An unexpected error occurred.';

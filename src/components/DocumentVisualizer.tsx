@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FileText, ShieldAlert, Stamp, AlertOctagon } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 interface DocumentVisualizerProps {
   letterId: string;

@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { Phone, RotateCcw, Volume2, Shield } from 'lucide-react';
+import { RotateCcw, Shield } from 'lucide-react';
 import type { SupportedLanguage } from '@/lib/types';
-import { LANGUAGE_NAMES } from '@/lib/types';
 
 interface HeaderNavProps {
   language: SupportedLanguage;
