@@ -6,7 +6,7 @@ import { Eraser, Sparkles, ArrowRight, ShieldCheck, X } from 'lucide-react';
 interface RedactionStudioProps {
   imageSrc: string;
   imageMime: string;
-  onProceed: (redactedBase64: string) => void;
+  onProceed: (redactedBase64: string, mimeType?: string) => void;
   onCancel: () => void;
 }
 
@@ -28,10 +28,10 @@ export function RedactionStudio({
       if (!ctx) return;
       const img = new window.Image();
       img.onload = () => {
-        const maxWidth = 720;
+        const maxWidth = 960;
         const scale = img.width > maxWidth ? maxWidth / img.width : 1;
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       };
       img.src = imageSrc;
@@ -91,31 +91,45 @@ export function RedactionStudio({
 
   const handleFinish = () => {
     if (!canvasRef.current) return;
-    const base64 = canvasRef.current.toDataURL(imageMime).split(',')[1];
-    onProceed(base64);
+    // Compress to high-quality JPEG (0.85) to ensure instant upload and fast AI vision parsing
+    const base64 = canvasRef.current.toDataURL('image/jpeg', 0.85).split(',')[1];
+    onProceed(base64, 'image/jpeg');
   };
 
   return (
-    <div className="bg-surface border-2 border-line rounded-2xl p-5 sm:p-7 space-y-5 shadow-sm max-w-2xl mx-auto">
+    <div className="bg-surface border-2 border-line rounded-2xl p-5 sm:p-7 space-y-4 shadow-sm max-w-2xl mx-auto">
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2.5">
-          <ShieldCheck className="w-5 h-5 text-accent" />
+          <ShieldCheck className="w-5 h-5 text-accent shrink-0" />
           <div>
             <h3 className="font-heading font-bold text-base text-ink">
               Privacy Shield: Redact Sensitive Numbers
             </h3>
             <p className="text-xs text-ink-muted">
-              Drag your finger or mouse over your SSN, phone number, or bank details before AI analysis.
+              Drag over your SSN or bank details, or proceed directly to AI analysis.
             </p>
           </div>
         </div>
-        <button
-          onClick={onCancel}
-          className="p-1.5 text-ink-muted hover:text-ink rounded-lg"
-          title="Cancel and retake"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleFinish}
+            className="btn-primary text-xs font-bold px-3 py-1.5 shadow-xs flex items-center gap-1"
+          >
+            <span>Proceed to Decode</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={onCancel}
+            className="p-1.5 text-ink-muted hover:text-ink rounded-lg"
+            title="Cancel and retake"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-accent-soft/60 border border-accent/20 rounded-lg px-3 py-2 text-[11px] text-ink-muted flex items-center justify-between gap-2">
+        <span>Redaction is optional. If your letter has no sensitive account info, click <strong>Proceed to Decode</strong> to analyze immediately.</span>
       </div>
 
       {/* Canvas Area */}
@@ -146,7 +160,7 @@ export function RedactionStudio({
             className="text-xs font-bold px-3 py-1.5 bg-accent-soft hover:bg-accent/20 text-accent rounded-lg flex items-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            1-Tap Auto-Scrub Account Area
+            1-Tap Auto-Scrub
           </button>
           <button
             onClick={clearRedactions}
@@ -174,13 +188,14 @@ export function RedactionStudio({
           </button>
           <button
             onClick={handleFinish}
-            className="btn-primary text-xs font-bold px-5 py-2 shadow-xs"
+            className="btn-primary text-xs font-bold px-5 py-2 shadow-xs flex items-center gap-1"
           >
             <span>Proceed to Decode</span>
-            <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
     </div>
   );
 }
+

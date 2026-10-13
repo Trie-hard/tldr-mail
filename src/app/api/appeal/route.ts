@@ -2,6 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getMockAppealForCategory } from '@/lib/mock-data';
 
+export const maxDuration = 60;
+
 const APPEAL_SYSTEM_PROMPT = `You are an expert at writing formal appeal letters, dispute letters, and response letters on behalf of regular people.
 
 Rules:
@@ -49,7 +51,12 @@ export async function POST(request: NextRequest) {
         ? `\nWrite the appeal letter in ${language}.`
         : '';
 
-    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    const candidateModels = [
+      'gemini-3-flash-preview',
+      'gemini-3.1-flash-lite',
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+    ];
     let lastGenError: unknown;
     let appealLetterText: string | null = null;
 

@@ -2,6 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getMockChatResponse } from '@/lib/mock-data';
 
+export const maxDuration = 60;
+
 const CHAT_SYSTEM_PROMPT = `You are TL;DR Mail's letter assistant. The user has received an official letter and has already seen a plain-language breakdown. Now they have follow-up questions.
 
 Rules:
@@ -41,7 +43,12 @@ export async function POST(request: NextRequest) {
         ? `\nRespond in ${language}.`
         : '';
 
-    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    const candidateModels = [
+      'gemini-3-flash-preview',
+      'gemini-3.1-flash-lite',
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+    ];
     let lastGenError: unknown;
     let answerText: string | null = null;
 

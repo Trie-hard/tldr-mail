@@ -124,5 +124,11 @@ export const LOCAL_RESOURCES: LocalResource[] = [
 ];
 
 export function getResourcesForCategory(category: string): LocalResource[] {
-  return LOCAL_RESOURCES.filter((r) => r.categories.includes(category as LocalResource['categories'][number]));
+  const norm = (category || '').toLowerCase();
+  const matched = LOCAL_RESOURCES.filter((r) =>
+    r.categories.some((cat) => norm.includes(cat) || cat.includes(norm))
+  );
+  return matched.length > 0
+    ? matched
+    : LOCAL_RESOURCES.filter((r) => r.categories.includes('unknown'));
 }

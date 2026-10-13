@@ -128,6 +128,21 @@ export default function Home() {
 
         setAnalysis(data.analysis);
         setResources(data.resources || []);
+
+        const synthContext = [
+          `Sender: ${data.analysis.sender}`,
+          `Category: ${data.analysis.category}`,
+          `Summary: ${data.analysis.tldr}`,
+          `What it wants: ${data.analysis.whatItWants}`,
+          data.analysis.deadline ? `Deadline: ${data.analysis.deadline}` : '',
+          data.analysis.financialAmount ? `Amount Due: ${data.analysis.financialAmount}` : '',
+          `Consequences: ${data.analysis.consequenceOfInaction}`,
+          `Key Facts: ${(data.analysis.keyFacts || []).join('; ')}`,
+        ]
+          .filter(Boolean)
+          .join('\n');
+        setLetterContext(synthContext);
+
         setActiveTab('steps');
         setStatus('done');
       } catch (err) {
@@ -371,7 +386,7 @@ export default function Home() {
               <RedactionStudio
                 imageSrc={rawImageSrc}
                 imageMime={rawImageMime}
-                onProceed={(redactedBase64) => analyzeImage(redactedBase64, rawImageMime)}
+                onProceed={(redactedBase64, mime) => analyzeImage(redactedBase64, mime || rawImageMime)}
                 onCancel={() => setStatus('idle')}
               />
             </motion.div>

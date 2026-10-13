@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getResourcesForCategory } from '@/lib/resources';
 import { getMockAnalysisForText } from '@/lib/mock-data';
 
+export const maxDuration = 60;
+
 const ANALYSIS_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -207,7 +209,12 @@ export async function POST(request: NextRequest) {
       parts.push({ text: `\n\n--- LETTER CONTENT ---\n${textContent}\n--- END OF LETTER ---` });
     }
 
-    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+    const candidateModels = [
+      'gemini-3-flash-preview',
+      'gemini-3.1-flash-lite',
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+    ];
     let lastGenError: unknown;
     let analysisResult = null;
 
@@ -247,16 +254,24 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (textContent) {
-      const mockFallback = getMockAnalysisForText(textContent);
-      if (mockFallback) {
-        const resources = getResourcesForCategory(mockFallback.category);
-        return NextResponse.json({
-          analysis: mockFallback,
-          resources,
-          isMock: true,
-        });
-      }
+    // Graceful fallback if models hit temporary quota spikes or network timeouts
+    const langCode = language?.toLowerCase().slice(0, 2) || 'en';
+    const mockFallback = textContent
+      ? getMockAnalysisForText(textContent, langCode)
+      : getMockAnalysisForText('eviction', langCode);
+
+    if (mockFallback) {
+      const resources = getResourcesForCategory(mockFallback.category);
+      return NextResponse.json({
+        analysis: {
+          ...mockFallback,
+          tldr: imageBase64
+            ? `[Demo Breakdown — AI busy] ${mockFallback.tldr}`
+            : mockFallback.tldr,
+        },
+        resources,
+        isMock: true,
+      });
     }
 
     throw lastGenError || new Error('No response received from Gemini model.');
