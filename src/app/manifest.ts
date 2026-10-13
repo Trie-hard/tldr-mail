@@ -7,13 +7,23 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Snap a photo of confusing official mail to get 6th-grade explanations, deadlines, and local help.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f8fafc',
-    theme_color: '#2563eb',
+    background_color: '#f3efe6',
+    theme_color: '#1a4d3e',
     icons: [
       {
         src: '/favicon.ico',
         sizes: 'any',
         type: 'image/x-icon',
+      },
+      {
+        src: '/logo.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+      },
+      {
+        src: '/logo.png',
+        sizes: '512x512',
+        type: 'image/png',
       },
     ],
   };

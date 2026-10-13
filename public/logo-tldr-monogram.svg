@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="monoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f4eee2" />
+    </linearGradient>
+
+    <linearGradient id="cedarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e5444" />
+      <stop offset="100%" stop-color="#12372c" />
+    </linearGradient>
+
+    <filter id="monoShadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#12372c" flood-opacity="0.16" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#monoBg)" stroke="#e4dac9" stroke-width="2.5" filter="url(#monoShadow)" />
+
+  <g transform="translate(10, 0)">
+    <!-- T Letterform -->
+    <path d="M 80 148 H 230 V 196 H 182 V 364 H 128 V 196 H 80 Z" fill="url(#cedarGrad)" />
+
+    <!-- L Letterform (Interlocking below) -->
+    <path d="M 148 236 H 194 V 316 H 244 V 364 H 148 Z" fill="#2d7a64" />
+
+    <!-- The 'D' as an Open Envelope -->
+    <g transform="translate(244, 140)">
+      <!-- Sliding Document Card poking out -->
+      <rect x="28" y="10" width="100" height="90" rx="8" fill="#ffffff" stroke="#ded5c4" stroke-width="2.5" />
+      <line x1="42" y1="36" x2="96" y2="36" stroke="#1a4d3e" stroke-width="4.5" stroke-linecap="round" />
+      <line x1="42" y1="52" x2="114" y2="52" stroke="#2d7a64" stroke-width="4" stroke-linecap="round" />
+      <line x1="42" y1="68" x2="80" y2="68" stroke="#10b981" stroke-width="4" stroke-linecap="round" />
+
+      <!-- Envelope Body forming 'D' shape -->
+      <path d="M 12 76 
+               H 100 C 138 76 156 98 156 138 C 156 178 138 200 100 200 
+               H 12 Z" 
+            fill="url(#cedarGrad)" stroke="#1a4d3e" stroke-width="2" />
+      
+      <!-- Envelope Flap Creases -->
+      <path d="M 12 76 L 80 138 L 148 76" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 12 200 L 70 148" fill="none" stroke="#0e2a22" stroke-width="3" stroke-linecap="round" />
+      <path d="M 152 200 L 92 148" fill="none" stroke="#0e2a22" stroke-width="3" stroke-linecap="round" />
+    </g>
+
+    <!-- R Letterform -->
+    <path d="M 256 266 H 318 C 342 266 358 278 358 300 C 358 318 344 328 326 332 L 366 364 H 336 L 302 334 H 284 V 364 H 256 Z 
+             M 284 286 V 316 H 312 C 322 316 330 310 330 300 C 330 290 322 286 312 286 Z" fill="url(#cedarGrad)" />
+  </g>
+</svg>

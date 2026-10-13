@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Paper Texture Tone -->
+    <linearGradient id="stampPaper" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fffdf8" />
+      <stop offset="100%" stop-color="#f2ebe0" />
+    </linearGradient>
+
+    <!-- Cedar Green Ink Gradient -->
+    <linearGradient id="stampInk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e5444" />
+      <stop offset="100%" stop-color="#12372c" />
+    </linearGradient>
+
+    <!-- Warm Amber / Gold Accent -->
+    <linearGradient id="amberStamp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <filter id="stampShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#3d372e" flood-opacity="0.18" />
+    </filter>
+
+    <!-- Perforation Pattern Mask or Shape -->
+  </defs>
+
+  <!-- Background Base Canvas -->
+  <rect x="0" y="0" width="512" height="512" rx="108" fill="#e8dfcf" />
+
+  <!-- The Postage Stamp Body with Perforated Scalloped Edge -->
+  <g filter="url(#stampShadow)">
+    <!-- Scalloped Stamp Rectangle (Outer Edge) -->
+    <path d="
+      M 76 60 
+      H 436 A 12 12 0 0 1 448 72 
+      V 440 A 12 12 0 0 1 436 452 
+      H 76 A 12 12 0 0 1 64 440 
+      V 72 A 12 12 0 0 1 76 60 Z
+    " fill="url(#stampPaper)" stroke="#ded4c3" stroke-width="2" />
+
+    <!-- Perforation notches around edges (Civic Postage Look) -->
+    <!-- Top & Bottom Notches -->
+    <circle cx="106" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="146" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="186" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="226" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="266" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="306" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="346" cy="60" r="9" fill="#e8dfcf" />
+    <circle cx="386" cy="60" r="9" fill="#e8dfcf" />
+
+    <circle cx="106" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="146" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="186" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="226" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="266" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="306" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="346" cy="452" r="9" fill="#e8dfcf" />
+    <circle cx="386" cy="452" r="9" fill="#e8dfcf" />
+
+    <!-- Left & Right Notches -->
+    <circle cx="64" cy="102" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="142" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="182" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="222" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="262" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="302" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="342" r="9" fill="#e8dfcf" />
+    <circle cx="64" cy="382" r="9" fill="#e8dfcf" />
+
+    <circle cx="448" cy="102" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="142" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="182" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="222" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="262" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="302" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="342" r="9" fill="#e8dfcf" />
+    <circle cx="448" cy="382" r="9" fill="#e8dfcf" />
+
+    <!-- Inner Stamp Border Frame -->
+    <rect x="92" y="88" width="328" height="336" rx="8" fill="none" stroke="#1a4d3e" stroke-width="3" stroke-opacity="0.85" />
+    <rect x="98" y="94" width="316" height="324" rx="6" fill="none" stroke="#1a4d3e" stroke-width="1" stroke-dasharray="4 3" stroke-opacity="0.5" />
+  </g>
+
+  <!-- Central Emblem: Monogram Geometric Envelope "T" & "M" -->
+  <g>
+    <!-- Top Header: Civic Postal Mark -->
+    <text x="256" y="128" text-anchor="middle" font-family="serif" font-size="13" font-weight="700" letter-spacing="4" fill="#1a4d3e">AUSTIN • TRAVIS CO.</text>
+
+    <!-- Stylized Geometric Envelope Emblem -->
+    <path d="M 156 160 H 356 V 320 H 156 Z" fill="#1a4d3e" rx="12" />
+    
+    <!-- Top Flap Fold / Triangle forming stylized "T" crossbar -->
+    <path d="M 156 160 L 256 244 L 356 160 Z" fill="#2d7a64" />
+    
+    <!-- Interior Fold forming the "M" shape inside the envelope -->
+    <path d="M 176 304 L 256 220 L 336 304" fill="none" stroke="url(#amberStamp)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Vertical T stalk -->
+    <line x1="256" y1="170" x2="256" y2="280" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" />
+
+    <!-- Bottom Stamp Text: "TL;DR MAIL" & "FREE AID" -->
+    <text x="256" y="366" text-anchor="middle" font-family="serif" font-size="20" font-weight="800" letter-spacing="3" fill="#1a4d3e">TL;DR MAIL</text>
+    <text x="256" y="392" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="600" letter-spacing="2" fill="#d97706">CIVIC DECODER • EST. 2026</text>
+  </g>
+</svg>

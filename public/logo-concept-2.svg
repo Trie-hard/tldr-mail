@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Outer Shield Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a4d3e" />
+      <stop offset="50%" stop-color="#143e32" />
+      <stop offset="100%" stop-color="#0e2a22" />
+    </linearGradient>
+
+    <!-- Emerald Inner Rim -->
+    <linearGradient id="emeraldRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <!-- Document Paper -->
+    <linearGradient id="paperGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fffdfa" />
+      <stop offset="100%" stop-color="#f2ebe0" />
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shieldShadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#071b15" flood-opacity="0.32" />
+    </filter>
+  </defs>
+
+  <!-- Background Warm Canvas for contrast -->
+  <rect x="0" y="0" width="512" height="512" rx="108" fill="#f5f0e6" />
+
+  <!-- Main Protective Shield Body -->
+  <g filter="url(#shieldShadow)">
+    <path d="M256 52 
+             C352 52 416 96 416 96 
+             C416 264 344 380 256 448 
+             C168 380 96 264 96 96 
+             C96 96 160 52 256 52 Z" 
+          fill="url(#shieldGrad)" />
+    
+    <!-- Inner Emerald Shield Rim -->
+    <path d="M256 74 
+             C338 74 394 112 394 112 
+             C394 254 330 356 256 418 
+             C182 356 118 254 118 112 
+             C118 112 174 74 256 74 Z" 
+          fill="none" stroke="url(#emeraldRim)" stroke-width="6" opacity="0.9" />
+  </g>
+
+  <!-- Inner Envelope / Legal Notice Component -->
+  <!-- Open Envelope Body inside Shield -->
+  <g>
+    <!-- Paper Document with folded corner -->
+    <path d="M196 156 L292 156 L316 180 L316 288 L196 288 Z" fill="url(#paperGrad2)" stroke="#dcd3c3" stroke-width="2" />
+    <!-- Dog-ear fold -->
+    <path d="M292 156 L292 180 L316 180 Z" fill="#e2d8c7" stroke="#cbbfab" stroke-width="1.5" />
+    
+    <!-- 2 Document Summary lines -->
+    <rect x="214" y="196" width="64" height="6" rx="3" fill="#1a4d3e" />
+    <rect x="214" y="214" width="76" height="6" rx="3" fill="#2d7a64" opacity="0.8" />
+    <rect x="214" y="232" width="48" height="6" rx="3" fill="#047857" opacity="0.7" />
+
+    <!-- Envelope pocket in front -->
+    <path d="M168 228 L168 328 C168 336 174 342 182 342 L330 342 C338 342 344 336 344 328 L344 228 L261 292 C258 294 254 294 251 292 Z" 
+          fill="#113a2e" stroke="#1f614e" stroke-width="3" />
+    
+    <!-- Envelope Fold Creases -->
+    <path d="M168 338 L244 274" stroke="#082019" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+    <path d="M344 338 L268 274" stroke="#082019" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+  </g>
+
+  <!-- Tiny Golden Star / Travis County Civic Seal Touch at Apex -->
+  <circle cx="256" cy="114" r="5" fill="#f59e0b" />
+</svg>

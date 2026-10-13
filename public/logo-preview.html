@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TL;DR Mail — Logo Concepts Showcase</title>
+  <style>
+    :root {
+      --paper: #f3efe6;
+      --paper-elevated: #faf8f4;
+      --surface: #fffdf9;
+      --ink: #1c1917;
+      --ink-muted: #6b645c;
+      --line: #ddd5c8;
+      --accent: #1a4d3e;
+      --accent-soft: #e6efe9;
+      --primary: #1e3a8a;
+      --primary-container: #eff6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 40px 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--ink-muted);
+      font-size: 1.1rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 40px 0 20px 0;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    }
+    .card-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .card-badge.highlight {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+      flex-grow: 1;
+    }
+    .image-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #faf8f4;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .nav-mockup {
+      background: #fffdf9;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .nav-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .nav-text .title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+      display: block;
+      line-height: 1.1;
+    }
+    .nav-text .sub {
+      font-size: 0.7rem;
+      color: var(--ink-muted);
+    }
+    .meta-tag {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>TL;DR Mail — Logo Concepts Showcase</h1>
+      <p class="subtitle">Exploring brand identities rooted in "Calm in an Acute Panic", Texas civic utility, and plain-language legal defense.</p>
+    </header>
+
+    <!-- Typographic TLDR Section -->
+    <h2 class="section-title">🅰️ Typographic TLDR Logo Marks</h2>
+    <div class="grid">
+      <!-- Concept A -->
+      <div class="card">
+        <span class="card-badge highlight">Concept A • Top Typographic</span>
+        <h2 class="card-title">The Semicolon Checkmark</h2>
+        <p class="card-desc">Bold 'TL;DR' typography where the semicolon dot is an amber alert beacon, and the tail transforms into an emerald checkmark over an envelope watermark.</p>
+        <div class="image-preview">
+          <img src="/logo-tldr-semicolon.jpg" alt="Concept A: Semicolon Checkmark">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-tldr-semicolon.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-tldr-semicolon.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept B -->
+      <div class="card">
+        <span class="card-badge">Concept B</span>
+        <h2 class="card-title">The Envelope Monogram</h2>
+        <p class="card-desc">Architectural geometric 'TLDR' monogram where the letter 'D' is replaced with an active open mail envelope and white letter card.</p>
+        <div class="image-preview">
+          <img src="/logo-tldr-monogram.jpg" alt="Concept B: Envelope Monogram">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-tldr-monogram.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-tldr-monogram.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept C -->
+      <div class="card">
+        <span class="card-badge">Concept C</span>
+        <h2 class="card-title">The Civic Postal Stamp</h2>
+        <p class="card-desc">Authentic circular civic postal cancellation seal with bold 'TL;DR' centerplate, wave cancellation lines, and an amber checkmark.</p>
+        <div class="image-preview">
+          <img src="/logo-tldr-stamp.jpg" alt="Concept C: Civic Postal Stamp">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-tldr-stamp.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-tldr-stamp.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconographic Section -->
+    <h2 class="section-title">🎨 Minimalist &amp; Civic Icon Marks</h2>
+    <div class="grid">
+      <!-- Concept 1 -->
+      <div class="card">
+        <span class="card-badge">Concept 1 • Recommended Icon</span>
+        <h2 class="card-title">The Decoded Envelope</h2>
+        <p class="card-desc">Cedar green envelope opening to reveal 3 clean summary lines that resolve into a reassuring emerald checkmark.</p>
+        <div class="image-preview">
+          <img src="/logo-concept-1.jpg" alt="Concept 1: The Decoded Envelope">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-concept-1.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-concept-1.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept 2 -->
+      <div class="card">
+        <span class="card-badge">Concept 2</span>
+        <h2 class="card-title">The Protective Shield &amp; Notice</h2>
+        <p class="card-desc">Civic defense shield wrapping around an official notice and envelope, projecting tenant protection and legal rights.</p>
+        <div class="image-preview">
+          <img src="/logo-concept-2.jpg" alt="Concept 2: The Protective Shield & Notice">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-concept-2.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-concept-2.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept 3 -->
+      <div class="card">
+        <span class="card-badge">Concept 3</span>
+        <h2 class="card-title">The Clarity Lens / Scanner</h2>
+        <p class="card-desc">Camera viewfinder magnifying a dense bureaucratic summons, converting micro-print into clear geometric highlights.</p>
+        <div class="image-preview">
+          <img src="/logo-concept-3.jpg" alt="Concept 3: The Clarity Lens">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-concept-3.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-concept-3.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept 4 -->
+      <div class="card">
+        <span class="card-badge">Concept 4</span>
+        <h2 class="card-title">The Civic Postal Stamp</h2>
+        <p class="card-desc">Classic scalloped postage stamp on unbleached paper with an embossed 'T' and 'M' folded-envelope monogram seal.</p>
+        <div class="image-preview">
+          <img src="/logo-concept-4.jpg" alt="Concept 4: The Civic Postal Stamp">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-concept-4.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-concept-4.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Concept 5 -->
+      <div class="card">
+        <span class="card-badge">Concept 5</span>
+        <h2 class="card-title">The Folded Origami Shelter</h2>
+        <p class="card-desc">Gentle origami paper folds unifying an open mail envelope with a peaked protective house roof shelter.</p>
+        <div class="image-preview">
+          <img src="/logo-concept-5.jpg" alt="Concept 5: The Folded Origami Shelter">
+        </div>
+        <div class="nav-mockup">
+          <div class="nav-icon"><img src="/logo-concept-5.jpg" alt="nav icon"></div>
+          <div class="nav-text">
+            <span class="title">TL;DR Mail</span>
+            <span class="sub">Header Nav Simulation (38px)</span>
+          </div>
+        </div>
+        <div class="meta-tag">
+          <span>Format: Vector SVG &amp; App Icon</span>
+          <span><a href="/logo-concept-5.svg" target="_blank" style="color:var(--accent);font-weight:bold;">View SVG ↗</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

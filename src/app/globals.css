@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -22,9 +23,9 @@
   --color-emergency-border: #f87171;
   --color-warning: #d97706;
   --color-calm: #047857;
-  --font-sans: var(--font-body), "IBM Plex Sans", system-ui, sans-serif;
-  --font-serif: var(--font-heading), "Newsreader", Georgia, serif;
-  --font-mono: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 :root {

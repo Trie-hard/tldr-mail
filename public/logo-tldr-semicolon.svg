@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Squircle Gradient -->
+    <linearGradient id="sqGradTLDR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f2ebe0" />
+    </linearGradient>
+
+    <!-- Emerald Checkmark Gradient -->
+    <linearGradient id="checkGradTLDR" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <filter id="shadowTLDR" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#1a4d3e" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- Base Squircle -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#sqGradTLDR)" stroke="#e2d8c7" stroke-width="2.5" filter="url(#shadowTLDR)" />
+
+  <!-- Subtle Architectural Envelope Watermark in Background -->
+  <g opacity="0.16">
+    <path d="M 80 180 L 256 300 L 432 180" fill="none" stroke="#1a4d3e" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="80" y="180" width="352" height="200" rx="16" fill="none" stroke="#1a4d3e" stroke-width="12" />
+  </g>
+
+  <!-- Prominent "TL;DR" Typographic Mark -->
+  <g transform="translate(0, 10)">
+    <!-- Letter T -->
+    <path d="M 72 200 H 146 V 232 H 122 V 330 H 96 V 232 H 72 Z" fill="#1a4d3e" />
+
+    <!-- Letter L -->
+    <path d="M 160 200 H 186 V 298 H 230 V 330 H 160 Z" fill="#1a4d3e" />
+
+    <!-- The Hero Semicolon ";" -->
+    <!-- Top Dot: Urgent Warning / Notification Amber Dot -->
+    <circle cx="256" cy="216" r="14" fill="#f59e0b" />
+    <circle cx="256" cy="216" r="8" fill="#fbbf24" />
+
+    <!-- Bottom Checkmark Comma: Emerging emerald resolution -->
+    <path d="M 242 272 L 254 286 L 278 254 L 286 262 L 254 304 L 234 280 Z" fill="url(#checkGradTLDR)" />
+
+    <!-- Letter D -->
+    <path d="M 302 200 H 346 C 374 200 392 216 392 265 C 392 314 374 330 346 330 H 302 Z 
+             M 328 228 V 302 H 344 C 362 302 366 288 366 265 C 366 242 362 228 344 228 Z" fill="#1a4d3e" />
+
+    <!-- Letter R -->
+    <path d="M 408 200 H 450 C 468 200 480 212 480 234 C 480 252 470 262 454 266 L 484 330 H 456 L 430 272 H 434 V 330 H 408 Z 
+             M 434 224 V 252 H 446 C 454 252 458 246 458 238 C 458 230 454 224 446 224 Z" fill="#1a4d3e" />
+  </g>
+
+  <!-- Bottom Accent Ribbon / Category Pill -->
+  <g transform="translate(0, 10)">
+    <rect x="180" y="372" width="152" height="28" rx="14" fill="#1a4d3e" />
+    <text x="256" y="391" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#ffffff">MAIL DECODER</text>
+  </g>
+</svg>
