@@ -55,7 +55,7 @@ export function HeaderNav({
           className="flex items-center gap-3 text-left rounded-lg p-1 hover:opacity-90 transition-opacity"
         >
           <div className="w-10 h-10 rounded-xl bg-paper-elevated flex items-center justify-center overflow-hidden ring-1 ring-line shadow-xs">
-            <Image src="/logo.svg" alt="TL;DR Mail" width={40} height={40} className="w-full h-full object-cover" priority />
+            <Image src="/logo.png" alt="TL;DR Mail" width={40} height={40} className="w-full h-full object-cover" priority />
           </div>
           <div>
             <div className="flex items-center gap-2">

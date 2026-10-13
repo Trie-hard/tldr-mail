@@ -23,10 +23,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
-    icon: [
-      { url: "/logo.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" },
-    ],
+    icon: "/logo.png",
     apple: "/logo.png",
   },
 };
@@ -43,7 +40,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#1a4d3e" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.png" />
       </head>
       <body className="min-h-screen flex flex-col antialiased">{children}</body>
     </html>
